@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,6 @@ import com.example.entity.Chatting;
 import com.example.entity.Info;
 import com.example.entity.Interaction;
 
-import jakarta.servlet.http.HttpSession;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -27,7 +28,7 @@ public class ChatServiceImpl implements ChatService {
 	DBService dbService;
 
 	@Override
-	public void createChatting(Chatting chatting, HttpSession session) {
+	public void createChatting(Chatting chatting, String username) {
 
 		/*
 		 * 채팅 생성할 때 필요한 것들 1. room_uuid : (TODO 추후 방을 클릭하면 room_uuid를 가져오는 식으로 코딩을 할 것임)
@@ -37,11 +38,10 @@ public class ChatServiceImpl implements ChatService {
 
 		System.out.println("ChatServiceImpl, createChatting 서비스에 들어옴.");
 		System.out.println(chatting.toString());
-		Info membersession = (Info) session.getAttribute("mvo");
 
 		chatting.setChatted_at(Instant.now());
 		chatting.setChat_uuid(UUID.randomUUID());
-		chatting.setChat_chatter(membersession.getUsername());
+		chatting.setChat_chatter(username);
 
 		DriverConfigLoader loader = dbService.getConnection();
 		dbService.save(loader, Chatting.class, chatting);
@@ -112,7 +112,7 @@ public class ChatServiceImpl implements ChatService {
 
 
 	@Override
-	public UUID createChattingInteraction(Info myInfo, String oppUserName) {
+	public UUID createChattingInteraction(String username, String oppUserName) {
 		System.out.println("[ChatServiceImpl][createChattingInteraction]");
 		
 		/*
@@ -140,7 +140,7 @@ public class ChatServiceImpl implements ChatService {
 		myChatRoom.setType_uuid(chatRoomUuid);
 		myChatRoom.setInteraction_regdate(reg_date);
 		myChatRoom.setType(type);
-		myChatRoom.setMy_username(myInfo.getUsername());
+		myChatRoom.setMy_username(username);
 		myChatRoom.setOpponent_username(oppUserName);
 		myChatRoom.setInteraction_uuid(UUID.randomUUID());
 		
@@ -156,7 +156,7 @@ public class ChatServiceImpl implements ChatService {
 		oppChatRoom.setInteraction_regdate(reg_date);
 		oppChatRoom.setType(type);
 		oppChatRoom.setMy_username(oppUserName);
-		oppChatRoom.setOpponent_username(myInfo.getUsername());
+		oppChatRoom.setOpponent_username(username);
 		oppChatRoom.setInteraction_uuid(UUID.randomUUID());
 		
 		DriverConfigLoader loader = dbService.getConnection();

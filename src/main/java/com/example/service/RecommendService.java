@@ -7,15 +7,15 @@ import com.example.entity.Info;
 
 public interface RecommendService {
 
-	Info getRecommendUsers(Info info);
+	Info getRecommendUsers(String username);
 
 	List<String> getS3Photos(Info recommendUser);
 
 	void saveLikeInteraction(String myUsername, String oppUsername, String like_dislike);
 
-	Boolean isCheckLikeMe(Info info, String oppUserName);
+	Boolean isCheckLikeMe(String myUsername, String oppUserName);
 
-	UUID saveMatching(Info info, String oppUserName);
+	UUID saveMatching(String myUsername, String oppUserName);
 
 	Info getOppInfo(String oppUserName);
 

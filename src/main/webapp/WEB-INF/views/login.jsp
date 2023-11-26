@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-    
-<%@ taglib prefix ="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix ="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <c:set var="cpath" value="${pageContext.request.contextPath}" />
-    
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="mvo" />
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,11 +42,16 @@
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
+			
+
+				
+			
 				<form action="${cpath}/login" method="post" class="login100-form validate-form">
+					<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 					<span class="login100-form-title p-b-43">
 						Login to continue
 					</span>
-					
+				    
 					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
 						<input class="input100" type="text" name="username">
 						<span class="focus-input100"></span>

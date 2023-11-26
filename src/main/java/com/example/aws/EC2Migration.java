@@ -37,6 +37,11 @@ public class EC2Migration {
 	}
 	
 	public String getEC2PublicIP() {
+		
+		if (this.osName.contains("win")) {
+			return "localhost";
+		} 
+		
         try {
             URL url = new URL(EC2_PUBLIC_IP_URL);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();

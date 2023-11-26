@@ -3,15 +3,15 @@ package com.example.service;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpSession;
+
 import com.example.entity.ChatRoomNotification;
 import com.example.entity.Chatting;
 import com.example.entity.Info;
 
-import jakarta.servlet.http.HttpSession;
-
 public interface ChatService {
 
-	void createChatting(Chatting chatting, HttpSession session);
+	void createChatting(Chatting chatting, String username);
 
 	List<Chatting> getChattings(UUID room_uuid);
 
@@ -19,7 +19,7 @@ public interface ChatService {
 
 	void insertChatting(Chatting chatting);
 
-	UUID createChattingInteraction(Info myInfo, String oppUserName);
+	UUID createChattingInteraction(String username, String oppUserName);
 
 	
 	

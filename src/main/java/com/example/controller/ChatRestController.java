@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +23,6 @@ import com.example.entity.Info;
 import com.example.service.ChatService;
 import com.example.service.DBService;
 
-import jakarta.servlet.http.HttpSession;
 @RestController
 public class ChatRestController {
 	
@@ -30,19 +33,22 @@ public class ChatRestController {
 	
 	
 	@PostMapping("/CreateChatting")
-    public void createChatting(@RequestBody Chatting chatting, HttpSession session) {
+    public void createChatting(@RequestBody Chatting chatting) {
         // 채팅방 생성 로직
-		System.out.print("채팅 생성 컨트롤러로 들어옴. ");
-		chatService.createChatting(chatting, session);
+		System.out.print("[ChatRestController][/CreateChatting]");
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		
+		chatService.createChatting(chatting, username);
     }
 	
 	@GetMapping("/GetChatting")
-    public List<Chatting> getChatting(@RequestParam UUID room_uuid, HttpSession session) {
+    public List<Chatting> getChatting(@RequestParam UUID room_uuid) {
 		System.out.println("[ ChatRestController ] [ getChatting ] [ room_uuid : " + room_uuid + "]");
 		
-		// 세션에서 "mvo" 객체의 username을 가져옵니다.
-	    Info mvo = (Info) session.getAttribute("mvo");
-	    String username = mvo.getUsername();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String username = authentication.getName();
 		
 		List<Chatting> chattings = chatService.getChattings(room_uuid);
 		

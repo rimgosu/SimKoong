@@ -5,6 +5,9 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <c:set var="cpath" value="${pageContext.request.contextPath}" />
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="mvo" />
+
     
 <!DOCTYPE html>
 <html>
@@ -25,7 +28,7 @@
         <!-- Navbar Start -->
         <div class="container-fluid nav-bar bg-transparent">
             <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
-                <a href="index" class="navbar-brand d-flex align-items-center text-center">
+                <a href="recommend" class="navbar-brand d-flex align-items-center text-center">
                     <div class="p-2 me-2">
                         <img class="img-fluid" src="img/logo.png" alt="Icon" style="width: 100%; height: 30px;">
                     </div>
@@ -72,7 +75,7 @@
                   <form class="form-inline" action="${cpath}/logout" method="get">
                      <button type="submit" class="btn btn-default" style="color: var(--dark); font-weight: 500;">LOGOUT</button>
                   </form>
-               </c:if>   
+				</c:if>   
                 </div>
             </nav>
          </div>

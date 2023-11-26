@@ -33,11 +33,11 @@ public class RecommendServiceImpl implements RecommendService {
 	AmazonS3 s3client;
 
 	@Override
-	public Info getRecommendUsers(Info info) {
+	public Info getRecommendUsers(String username) {
 		// info : 현재 세션에서 받아온 info.
 		System.out.println("[RecommendServiceImpl][getRecommendUsers]");
 
-		String myName = info.getUsername();
+		String myName = username;
 
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> allUsers = dbService.findAll(loader, Info.class);
@@ -49,12 +49,12 @@ public class RecommendServiceImpl implements RecommendService {
 		Map<String, Object> likeColumnValues = new HashMap<String, Object>();
 		likeColumnValues.put("type", "like");
 		likeColumnValues.put("from_to", "to");
-		likeColumnValues.put("my_username", info.getUsername());
+		likeColumnValues.put("my_username", myName);
 
 		Map<String, Object> dislikeColumnValues = new HashMap<String, Object>();
 		dislikeColumnValues.put("type", "dislike");
 		dislikeColumnValues.put("from_to", "to");
-		dislikeColumnValues.put("my_username", info.getUsername());
+		dislikeColumnValues.put("my_username", myName);
 
 		List<Interaction> likeInteractions = dbService.findAllByColumnValues(loader, Interaction.class,
 				likeColumnValues);
@@ -152,13 +152,13 @@ public class RecommendServiceImpl implements RecommendService {
 	}
 
 	@Override
-	public Boolean isCheckLikeMe(Info info, String oppUserName) {
+	public Boolean isCheckLikeMe(String myUsername, String oppUserName) {
 		System.out.println("[RecommendServiceImpl][checkLikeMe]");
 		
 		// 만약 상대로부터 받은 좋아요가 있다면,
 		Map<String, Object> interactionCV = new HashMap<String, Object>();
 		interactionCV.put("from_to", "from");
-		interactionCV.put("my_username", info.getUsername());
+		interactionCV.put("my_username", myUsername);
 		interactionCV.put("opponent_username", oppUserName);
 		interactionCV.put("type", "like");
 		DriverConfigLoader loader = dbService.getConnection();
@@ -174,7 +174,7 @@ public class RecommendServiceImpl implements RecommendService {
 	}
 
 	@Override
-	public UUID saveMatching(Info info, String oppUserName) {
+	public UUID saveMatching(String myUsername, String oppUserName) {
 		System.err.println("[RecommendServiceImpl][saveMatching]");
 		
 		DriverConfigLoader loader = dbService.getConnection();
@@ -208,7 +208,7 @@ public class RecommendServiceImpl implements RecommendService {
 		myMatching.setType(type);
 		myMatching.setType_uuid(sharedTypeUuid);
 		myMatching.setInteraction_uuid(UUID.randomUUID());
-		myMatching.setMy_username(info.getUsername());
+		myMatching.setMy_username(myUsername);
 		myMatching.setOpponent_username(oppUserName);
 	
 		
@@ -225,7 +225,7 @@ public class RecommendServiceImpl implements RecommendService {
 		oppMatching.setType_uuid(sharedTypeUuid);
 		oppMatching.setInteraction_uuid(UUID.randomUUID());
 		oppMatching.setMy_username(oppUserName);
-		oppMatching.setOpponent_username(info.getUsername());
+		oppMatching.setOpponent_username(myUsername);
 		
 		dbService.save(loader, Interaction.class, myMatching);
 		dbService.save(loader, Interaction.class, oppMatching);
