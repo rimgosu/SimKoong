@@ -138,6 +138,7 @@ color:#69707a;
     </nav> --><!-- 
     <hr class="mt-0 mb-4"> -->
     <form>
+    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
     <div class="row">
         <div class="col-xl-4">
             <!-- Profile picture card-->

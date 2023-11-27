@@ -2,7 +2,6 @@ package com.example.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +10,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,12 +20,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.example.entity.AddressData;
 import com.example.entity.Info;
 import com.example.service.DBService;
 import com.example.service.InfoService;
@@ -109,42 +115,62 @@ public class MainController {
 			@RequestParam("password") String password) {
 
 		infoService.InsertInfo(nickname, username, passwordEncoder.encode(password));
-		return "redirect:/index";
+
+		DriverConfigLoader loader = dbService.getConnection(); // db연결
+		Map<String, Object> columnValues = new HashMap<>();
+		columnValues.put("username", username);
+		List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
+
+		if (listInfo.size() == 0) {
+			return "redirect:join";
+		} else {
+			return "redirect:/login";
+		}
 	}
 
-	@GetMapping("/info") // 사진 출력필요함.
+	@GetMapping("/photoUpload") // 사진 출력필요함.
 	public String showInfoPage(Model model) {
-		System.out.println("정보입력으로 들어왔음.");
+		System.out.println("사진입력으로 들어왔음.");
 		// 사진 출력되는 곳
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
-
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
-		Info userInfo = infos.get(0);
+		Info userInfo = (Info) infos.get(0);
 
 		Map<Integer, String> photoMap = userInfo.getPhoto();
-		List<String> fileNames = new ArrayList<>();
-		String imagePath = null;
-		String fileName = null;
+		List<String> imageDatas = new ArrayList<>();
+		// aws에서 가져오기
+		String bucketName = "simkoong-s3";
+		String base64Encoded = null;
 		if (photoMap != null) {
 			for (int i = 1; i <= 4; i++) {
-				imagePath = photoMap.get(i);
-				File file = new File(imagePath);
-				fileName = file.getName();
-				fileNames.add(fileName);
+				String imagePath = photoMap.get(i);
+				if (imagePath != null) {
+					File file = new File(imagePath);
+					String fileName = file.getName();
+					System.out.println(fileName);
+					try {
+						S3Object s3object = s3client.getObject(bucketName, fileName);
+						S3ObjectInputStream inputStream = s3object.getObjectContent();
+						byte[] bytes = IOUtils.toByteArray(inputStream);
+						base64Encoded = Base64.encodeBase64String(bytes);
+						imageDatas.add(base64Encoded);
+					} catch (Exception e) {
+						// 파일이 존재하지 않을 때 빈 이미지 추가
+						base64Encoded = ""; // 빈 문자열 또는 기본 이미지 URL 설정
+						imageDatas.add(base64Encoded);
+					}
+				}
 			}
-		} else {
-			System.out.println("없음");
-			// sessionPhoto가 null일 때 처리할 코드를 여기에 추가하세요
 		}
-		model.addAttribute("fileNames", fileNames);
-		model.addAttribute(fileName);
-		return "info";
+		model.addAttribute("imageDatas", imageDatas);
+		model.addAttribute("imageData", base64Encoded);
+		return "photoUpload";
 	}
 
-	@PostMapping("/info")
+	@PostMapping("/photoUpload")
 	public String showInfoPage(Info info, HttpServletRequest request) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -222,47 +248,92 @@ public class MainController {
 		}
 
 //		infoService.fileUpload(additionalFile, username_session);
-		return "redirect:/info";
+		return "redirect:/photoUpload";
 	}
 
 	@GetMapping("/profile")
 	public String showProfilePage(Model model) {
 		System.out.println("마이페이지로 들어왔음.");
-
+		// 사진 출력되는 곳
+		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
-
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
-		Info userInfo = infos.get(0);
+		Info userInfo = (Info) infos.get(0);
 		
 		Map<Integer, String> photoMap = userInfo.getPhoto();
-		String imagePath = null;
-		String fileName = null;
+		List<String> imageDatas = new ArrayList<>();
+		String bucketName = "simkoong-s3";
+		String base64Encoded = null;
 		if (photoMap != null) {
-			imagePath = photoMap.get(1);
-			File file = new File(imagePath);
-			fileName = file.getName();
-
-		} else {
-			System.out.println("없음");
-			// sessionPhoto가 null일 때 처리할 코드를 여기에 추가하세요
+			for (int i = 1; i <= 4; i++) {
+				String imagePath = photoMap.get(i);
+				if (imagePath != null) {
+					File file = new File(imagePath);
+					String fileName = file.getName();
+					try {
+						S3Object s3object = s3client.getObject(bucketName, fileName);
+						S3ObjectInputStream inputStream = s3object.getObjectContent();
+						byte[] bytes = IOUtils.toByteArray(inputStream);
+						base64Encoded = Base64.encodeBase64String(bytes);
+						imageDatas.add(base64Encoded);
+					} catch (Exception e) {
+						// 파일이 존재하지 않을 때 빈 이미지 추가
+						base64Encoded = ""; // 빈 문자열 또는 기본 이미지 URL 설정
+						imageDatas.add(base64Encoded);
+					}
+				}
+			}
 		}
-		model.addAttribute("fileName", fileName);
+		model.addAttribute("imageDatas", imageDatas);
 		return "profile";
 	}
 
 	@GetMapping("/update")
-	public String showUpdatePage() {
+	public String showUpdatePage(Info info, Model model) {
 		System.out.println("수정페이지로 들어왔음.");
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		DriverConfigLoader loader = dbService.getConnection();
+		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
+		Info userInfo = (Info) infos.get(0);
+		
+		Map<Integer, String> photoMap = userInfo.getPhoto();
+		List<String> imageDatas = new ArrayList<>();
+		String bucketName = "simkoong-s3";
+		String base64Encoded = null;
+		if (photoMap != null) {
+			for (int i = 1; i <= 4; i++) {
+				String imagePath = photoMap.get(i);
+				if (imagePath != null) {
+					File file = new File(imagePath);
+					String fileName = file.getName();
+
+					try {
+						S3Object s3object = s3client.getObject(bucketName, fileName);
+						S3ObjectInputStream inputStream = s3object.getObjectContent();
+						byte[] bytes = IOUtils.toByteArray(inputStream);
+						base64Encoded = Base64.encodeBase64String(bytes);
+						imageDatas.add(base64Encoded);
+					} catch (Exception e) {
+						// 파일이 존재하지 않을 때 빈 이미지 추가
+						base64Encoded = ""; // 빈 문자열 또는 기본 이미지 URL 설정
+						imageDatas.add(base64Encoded);
+					}
+				}
+			}
+		}
+		model.addAttribute("imageDatas", imageDatas);
 		return "update";
 	}
 
 	@PostMapping("/update")
 	public String update(Info info) {
-		
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
+
 		String username_session = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		Map<String, Object> columnValues = new HashMap<>();
@@ -291,16 +362,93 @@ public class MainController {
 		return "redirect:/profile";
 	}
 
-	@GetMapping("/test")
-	public String showTestPage() {
-		System.out.println("테스트페이지로 들어옴.");
-		return "test";
+	@GetMapping("/location")
+	public String locationPage() {
+		System.out.println("위치 정보 확인");	
+		return "location";
 	}
-
-	@GetMapping("/sendlike")
-	public String showSendLikePage() {
-		System.out.println("보낸좋아요로 들어왔음.");
-		return "sendlike";
+	@PostMapping("/location")
+    public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session) {
+        System.out.println("[MainController][/location]");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username_session = authentication.getName();
+		DriverConfigLoader loader = dbService.getConnection();
+		Map<String, Object> columnValues = new HashMap<>();
+		columnValues.put("username", username_session);
+		List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
+		
+		Map<String, Object> whereUpdate = new HashMap<>();
+		Map<String, Object> updateValue = new HashMap<>();
+		
+		String roadAddress = addressData.getRoadAddress();
+		String cityName = addressData.getCityName(); 
+		String latitude =addressData.getLatitude();
+		String longitude = addressData.getLongitude();
+        // 예시로 받은 데이터를 콘솔에 출력해보겠습니다.
+        System.out.println("도로명 주소: " + roadAddress);
+        System.out.println("도시명: " + cityName);
+        System.out.println("경도 "+ latitude);
+        System.out.println("위도 "+ longitude);
+        
+        List<String> addressList= new ArrayList<>();
+		addressList.add(roadAddress);
+		addressList.add(latitude);
+		addressList.add(longitude);
+		
+		whereUpdate.put("username", username_session);
+		updateValue.put("address", addressList);
+		
+		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
+		
+		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username_session);
+		session.setAttribute("mvo_session", infos.get(0));
+		
+     // 클라이언트에게 JSON 형태로 응답을 보냅니다.
+        String response = "{\"message\": \"주소 정보를 성공적으로 받았습니다.\"}";
+        return ResponseEntity.ok(response);
+    }
+	
+	
+	@GetMapping("/otherProfile")
+	public String showOtherProfilePage( Info info, Model model) {
+		System.out.println("다른 유저의 프로필 방문");
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		DriverConfigLoader loader = dbService.getConnection();
+		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
+		Info userInfo = (Info) infos.get(0);
+		
+//		사진 가져오는 부분
+		Map<Integer, String> photoMap = userInfo.getPhoto();
+		List<String> imageDatas = new ArrayList<>();
+		String bucketName = "simkoong-s3";
+		String base64Encoded = null;
+		if (photoMap != null) {
+			for (int i = 1; i <= 4; i++) {
+				String imagePath = photoMap.get(i);
+				if (imagePath != null) {
+					File file = new File(imagePath);
+					String fileName = file.getName();
+	
+					try {
+					    S3Object s3object = s3client.getObject(bucketName, fileName);
+					    S3ObjectInputStream inputStream = s3object.getObjectContent();
+					    byte[] bytes = IOUtils.toByteArray(inputStream);
+					    base64Encoded = Base64.encodeBase64String(bytes);
+					    imageDatas.add(base64Encoded);
+					} catch (Exception e) {
+					    // 파일이 존재하지 않을 때 빈 이미지 추가
+					    base64Encoded = ""; // 빈 문자열 또는 기본 이미지 URL 설정
+					    imageDatas.add(base64Encoded);
+					}
+				}
+			}
+		} 
+		model.addAttribute("imageDatas", imageDatas);
+		
+		return "otherProfile";
 	}
+	
+	
 
 }
