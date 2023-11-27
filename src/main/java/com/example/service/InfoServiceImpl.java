@@ -196,7 +196,7 @@ public class InfoServiceImpl implements InfoService {
 		info.setPhoto(files);
 		info.setRegister_date(Instant.now());
 		info.setStatus(true);
-//		info.setIsFirst(true);
+		info.setIsFirst(true);
 		
 		
 		

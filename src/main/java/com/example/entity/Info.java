@@ -31,7 +31,8 @@ public class Info {
     private Instant register_date;
     private String sex;
     private Boolean status;
-//    private Boolean isFirst;
+    private Boolean isFirst;
+    private String photo_base64;
     private List<String> role;
     private List<String> address;
     private Map<Integer, String> photo;

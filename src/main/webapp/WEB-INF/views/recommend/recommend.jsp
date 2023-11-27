@@ -67,6 +67,7 @@
 		<!-- Navbar End -->
 
 		<!-- 추천 카드 시작 -->
+		
 		<div class="container">
 			<div style="display: flex; justify-content: center;">
 				<div class="col-md-4 like-area droppable" style="align-items: center; justify-content: center; display: flex;">
