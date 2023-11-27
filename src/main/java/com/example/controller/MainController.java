@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -34,6 +36,8 @@ import com.example.entity.AddressData;
 import com.example.entity.Info;
 import com.example.service.DBService;
 import com.example.service.InfoService;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 @Controller
 public class MainController {
@@ -115,7 +119,6 @@ public class MainController {
 			@RequestParam("password") String password) {
 
 		infoService.InsertInfo(nickname, username, passwordEncoder.encode(password));
-
 		DriverConfigLoader loader = dbService.getConnection(); // db연결
 		Map<String, Object> columnValues = new HashMap<>();
 		columnValues.put("username", username);
@@ -128,7 +131,7 @@ public class MainController {
 		}
 	}
 
-	@GetMapping("/photoUpload") // 사진 출력필요함.
+	@GetMapping("/photoUpload") // 사진 업로드 하는 페이지로 이동
 	public String showInfoPage(Model model) {
 		System.out.println("사진입력으로 들어왔음.");
 		// 사진 출력되는 곳
@@ -170,25 +173,21 @@ public class MainController {
 		return "photoUpload";
 	}
 
-	@PostMapping("/photoUpload")
+	@PostMapping("/photoUpload")// 사진 업로드 하는 페이지에서 index로 이동함.
 	public String showInfoPage(Info info, HttpServletRequest request) {
-
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
-
 		infoService.InsertInfoAdditional(info, username_session);
 		return "redirect:/index";
 
 	}
 
-	// 파일 업로드
+	// 사진 업로드 하는 페이지에서 form태그 파일 업로드
 	@PostMapping("/fileUpload")
 	public String fileUpload(Info info, @RequestParam("file") MultipartFile file,
 			@RequestParam("photoNum") int photoNum, HttpServletRequest request) {
 		System.out.println(file);
-
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 		String username_session = authentication.getName();
 		System.out.println(username_session);
 		String originalFilename = null;
@@ -208,8 +207,15 @@ public class MainController {
 				System.out.println(dest);
 				// 파일 저장
 				file.transferTo(dest);
+				// 이미지 리사이징
+				BufferedImage originalImage = ImageIO.read(dest);
+				BufferedImage resizedImage = Thumbnails.of(originalImage)
+											.size(640,360)
+											.outputFormat("jpg")
+											.asBufferedImage();
+				File resizedFile = new File(filePath);
+				ImageIO.write(resizedImage, "jpg", resizedFile);
 				// 파일 경로에서 역슬래시 바꾸는 곳.
-				System.out.println(dest);
 				filePath = filePath.replace("\\\\", "/");
 				uploadedFilePath = filePath.replace("\\", "/");
 
@@ -347,7 +353,7 @@ public class MainController {
 		updateValue.put("nickname", info.getNickname());
 		updateValue.put("age", info.getAge());
 		updateValue.put("phone", info.getPhone());
-		updateValue.put("address", info.getAddress());
+		/* updateValue.put("address", info.getAddress()); */
 		updateValue.put("interest", info.getInterest());
 		updateValue.put("mbti", info.getMbti());
 		updateValue.put("sport", info.getMbti());
@@ -407,48 +413,6 @@ public class MainController {
         String response = "{\"message\": \"주소 정보를 성공적으로 받았습니다.\"}";
         return ResponseEntity.ok(response);
     }
-	
-	
-	@GetMapping("/otherProfile")
-	public String showOtherProfilePage( Info info, Model model) {
-		System.out.println("다른 유저의 프로필 방문");
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-		DriverConfigLoader loader = dbService.getConnection();
-		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
-		Info userInfo = (Info) infos.get(0);
-		
-//		사진 가져오는 부분
-		Map<Integer, String> photoMap = userInfo.getPhoto();
-		List<String> imageDatas = new ArrayList<>();
-		String bucketName = "simkoong-s3";
-		String base64Encoded = null;
-		if (photoMap != null) {
-			for (int i = 1; i <= 4; i++) {
-				String imagePath = photoMap.get(i);
-				if (imagePath != null) {
-					File file = new File(imagePath);
-					String fileName = file.getName();
-	
-					try {
-					    S3Object s3object = s3client.getObject(bucketName, fileName);
-					    S3ObjectInputStream inputStream = s3object.getObjectContent();
-					    byte[] bytes = IOUtils.toByteArray(inputStream);
-					    base64Encoded = Base64.encodeBase64String(bytes);
-					    imageDatas.add(base64Encoded);
-					} catch (Exception e) {
-					    // 파일이 존재하지 않을 때 빈 이미지 추가
-					    base64Encoded = ""; // 빈 문자열 또는 기본 이미지 URL 설정
-					    imageDatas.add(base64Encoded);
-					}
-				}
-			}
-		} 
-		model.addAttribute("imageDatas", imageDatas);
-		
-		return "otherProfile";
-	}
-	
 	
 
 }

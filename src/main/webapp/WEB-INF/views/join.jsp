@@ -63,14 +63,17 @@
 					
 					
 					<div class="wrap-input100 validate-input" data-validate="Password is required">
-						<input class="input100" type="password" name="password">
+						<input class="input100" type="password" name="password" id="password">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Password</span>
 					</div>
 					
-					
+					<div id="check" class="invalid-feedback mb-1 m-1">
+						비밀번호가 일치하지 않습니다.
+					</div>
+					<!-- 11/27보경 비밀번호 일치 구현  -->
 					<div class="wrap-input100 validate-input" data-validate="Password is required">
-						<input class="input100" type="password" name="confirm_password">
+						<input class="input100" type="password" name="confirm_password" id="password2" onchange="check()">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Check Password</span>
 					</div>
@@ -117,10 +120,7 @@
 			</div>
 		</div>
 	</div>
-	
-	
 
-	
 	
 <!--===============================================================================================-->
 	<script src="Logintemplate/vendor/jquery/jquery-3.2.1.min.js"></script>
@@ -139,15 +139,30 @@
 <!--===============================================================================================-->
 	<script src="Logintemplate/js/main.js"></script>
 
+<script>
+	function check(){
+		let password = $("#password").val();
+		let password2 = $("#password2").val();
+		
+		if(password === password2){
+			$("#check").hide();
+			joinButton.prop('disabled', false);
+		} else{
+			$("#check").show();
+			joinButoon.prop('disabled', true);
+		}
+	}
+	$(document).ready(function(){
+		$("#check").hide();
+	});
+
+</script>
+
+
+
 </body>
+
 </html>
-
-
-
-
-
-
-
 
 
 <%-- <%@ page language="java" contentType="text/html; charset=UTF-8"
