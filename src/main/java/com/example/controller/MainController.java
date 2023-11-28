@@ -32,10 +32,12 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.example.aws.EC2Migration;
 import com.example.entity.AddressData;
 import com.example.entity.Info;
 import com.example.service.DBService;
 import com.example.service.InfoService;
+import com.example.service.RecommendService;
 
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -50,6 +52,14 @@ public class MainController {
 	private AmazonS3 s3client;
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	@Autowired
+	RecommendService recommendService;
+
+	@GetMapping("/fileUploadTest")
+	public String fileUploadTest() {
+		System.out.println("[MainController][/fileUploadTest]");
+		return "fileUploadTest";
+	}
 
 	@GetMapping("/")
 	public String showMainPage() {
@@ -118,6 +128,8 @@ public class MainController {
 	public String showJoinPage(@RequestParam("nickname") String nickname, @RequestParam("username") String username,
 			@RequestParam("password") String password) {
 
+		System.out.println("[MainController][/join]");
+
 		infoService.InsertInfo(nickname, username, passwordEncoder.encode(password));
 		DriverConfigLoader loader = dbService.getConnection(); // db연결
 		Map<String, Object> columnValues = new HashMap<>();
@@ -173,8 +185,10 @@ public class MainController {
 		return "photoUpload";
 	}
 
-	@PostMapping("/photoUpload")// 사진 업로드 하는 페이지에서 index로 이동함.
+	@PostMapping("/photoUpload") // 사진 업로드 하는 페이지에서 index로 이동함.
 	public String showInfoPage(Info info, HttpServletRequest request) {
+		System.out.println("[MainController][/photoUpload]");
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
 		infoService.InsertInfoAdditional(info, username_session);
@@ -182,58 +196,70 @@ public class MainController {
 
 	}
 
-	// 사진 업로드 하는 페이지에서 form태그 파일 업로드
 	@PostMapping("/fileUpload")
-	public String fileUpload(Info info, @RequestParam("file") MultipartFile file,
-			@RequestParam("photoNum") int photoNum, HttpServletRequest request) {
-		System.out.println(file);
+	public String fileUpload(@RequestParam("file") MultipartFile file, @RequestParam("photoNum") int photoNum,
+			HttpServletRequest request) {
+		// ... [기존 코드 유지] ...
+		System.out.println("[MainController][/fileUpload]");
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
-		System.out.println(username_session);
+
+		DriverConfigLoader loader = dbService.getConnection();
+		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username_session);
+		Info info = infos.get(0);
+
 		String originalFilename = null;
 		String uploadedFilePath_aws = null;
 		try {
+			// 고정된 로컬 경로 설정
+			EC2Migration ec2Migration = new EC2Migration();
+			
+			String localPath = ec2Migration.getFileDirectory();
 			String uploadedFilePath = null;
+
 			// 업로드된 파일 처리
 			if (!file.isEmpty()) {
 				originalFilename = file.getOriginalFilename();
-				// 파일 저장 경로 및 이름 설정
-				System.out.println(originalFilename);
-				String filePath_aws = "s3://simkoong-s3/" + originalFilename;
-				String filePath = request.getServletContext().getRealPath("/" + originalFilename);
-				System.out.println(filePath);
-				File dest = new File(filePath);
+				// 고정된 로컬 경로와 원본 파일 이름을 조합
+				String localFilePath = localPath + originalFilename;
+				File dest = new File(localFilePath);
 
-				System.out.println(dest);
 				// 파일 저장
 				file.transferTo(dest);
+
 				// 이미지 리사이징
 				BufferedImage originalImage = ImageIO.read(dest);
-				BufferedImage resizedImage = Thumbnails.of(originalImage)
-											.size(640,360)
-											.outputFormat("jpg")
-											.asBufferedImage();
-				File resizedFile = new File(filePath);
-				ImageIO.write(resizedImage, "jpg", resizedFile);
-				// 파일 경로에서 역슬래시 바꾸는 곳.
-				filePath = filePath.replace("\\\\", "/");
-				uploadedFilePath = filePath.replace("\\", "/");
+				BufferedImage resizedImage = Thumbnails.of(originalImage).size(640, 360) // 원하는 이미지 크기로 리사이징
+						.outputFormat("jpg") // 출력 포맷 설정
+						.asBufferedImage();
 
-				filePath_aws = filePath_aws.replace("\\\\", "/");
-				uploadedFilePath_aws = filePath_aws.replace("\\", "/");
+				// 리사이징된 이미지를 새 파일로 저장
+				File resizedFile = new File(localFilePath); // 같은 경로에 저장
+				ImageIO.write(resizedImage, "jpg", resizedFile);
+
+				// AWS S3 업로드를 위한 경로 설정
+				uploadedFilePath = localFilePath.replace("\\\\", "/");
+				uploadedFilePath_aws = "s3://simkoong-s3/" + originalFilename;
 
 			}
+
+			// ... [AWS S3 업로드 및 데이터베이스 업데이트 로직] ...
 			// AWS S3 관련 코드
 			File fileForS3 = new File(uploadedFilePath);
 			String bucketName = "simkoong-s3";
 			String fileName = originalFilename;
+
+			System.out.println("[bucketName : ]" + bucketName);
+			System.out.println("[fileName : ]" + fileName);
+			System.out.println("[fileName : ]" + fileForS3);
+
 			s3client.putObject(new PutObjectRequest(bucketName, fileName, fileForS3));
 
 			// listinfo 정보 전체 가져오기
 			Map<String, Object> columnValues = new HashMap<>();
 			columnValues.put("username", username_session);
 
-			DriverConfigLoader loader = dbService.getConnection();
 			List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
 
 			// 업데이트할 정보를 Map형식의 photo에 넣기.
@@ -244,8 +270,11 @@ public class MainController {
 			Map<String, Object> whereUpdate = new HashMap<>();
 			Map<String, Object> updateValue = new HashMap<>();
 
+			List<String> photos_base64 = recommendService.getS3Photos(info);
+
 			whereUpdate.put("username", username_session);
 			updateValue.put("photo", photo);
+			updateValue.put("photo_base64", photos_base64.get(0));
 
 			// 업데이트 진행
 			dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
@@ -253,21 +282,21 @@ public class MainController {
 			e.printStackTrace();
 		}
 
-//		infoService.fileUpload(additionalFile, username_session);
+		// ... [기존 코드 유지] ...
 		return "redirect:/photoUpload";
 	}
 
 	@GetMapping("/profile")
 	public String showProfilePage(Model model) {
-		System.out.println("마이페이지로 들어왔음.");
+		System.out.println("[MainController][/profile]");
 		// 사진 출력되는 곳
-		
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
 		Info userInfo = (Info) infos.get(0);
-		
+
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
 		String bucketName = "simkoong-s3";
@@ -298,14 +327,14 @@ public class MainController {
 
 	@GetMapping("/update")
 	public String showUpdatePage(Info info, Model model) {
-		System.out.println("수정페이지로 들어왔음.");
-		
+		System.out.println("[MainController][@GetMapping/update]");
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
 		Info userInfo = (Info) infos.get(0);
-		
+
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
 		String bucketName = "simkoong-s3";
@@ -337,6 +366,7 @@ public class MainController {
 
 	@PostMapping("/update")
 	public String update(Info info) {
+		System.out.println("[MainController][@PostMapping/update]");
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -370,48 +400,48 @@ public class MainController {
 
 	@GetMapping("/location")
 	public String locationPage() {
-		System.out.println("위치 정보 확인");	
+		System.out.println("[MainController][@GetMapping/location]");
 		return "location";
 	}
+
 	@PostMapping("/location")
-    public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session) {
-        System.out.println("[MainController][/location]");
+	public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session) {
+		System.out.println("[MainController][@PostMapping/location]");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		Map<String, Object> columnValues = new HashMap<>();
 		columnValues.put("username", username_session);
-		
+
 		Map<String, Object> whereUpdate = new HashMap<>();
 		Map<String, Object> updateValue = new HashMap<>();
-		
+
 		String roadAddress = addressData.getRoadAddress();
-		String cityName = addressData.getCityName(); 
-		String latitude =addressData.getLatitude();
+		String cityName = addressData.getCityName();
+		String latitude = addressData.getLatitude();
 		String longitude = addressData.getLongitude();
-        // 예시로 받은 데이터를 콘솔에 출력해보겠습니다.
-        System.out.println("도로명 주소: " + roadAddress);
-        System.out.println("도시명: " + cityName);
-        System.out.println("경도 "+ latitude);
-        System.out.println("위도 "+ longitude);
-        
-        List<String> addressList= new ArrayList<>();
+		// 예시로 받은 데이터를 콘솔에 출력해보겠습니다.
+		System.out.println("도로명 주소: " + roadAddress);
+		System.out.println("도시명: " + cityName);
+		System.out.println("경도 " + latitude);
+		System.out.println("위도 " + longitude);
+
+		List<String> addressList = new ArrayList<>();
 		addressList.add(roadAddress);
 		addressList.add(latitude);
 		addressList.add(longitude);
-		
+
 		whereUpdate.put("username", username_session);
 		updateValue.put("address", addressList);
-		
+
 		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
-		
+
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username_session);
 		session.setAttribute("mvo_session", infos.get(0));
-		
-     // 클라이언트에게 JSON 형태로 응답을 보냅니다.
-        String response = "{\"message\": \"주소 정보를 성공적으로 받았습니다.\"}";
-        return ResponseEntity.ok(response);
-    }
-	
+
+		// 클라이언트에게 JSON 형태로 응답을 보냅니다.
+		String response = "{\"message\": \"주소 정보를 성공적으로 받았습니다.\"}";
+		return ResponseEntity.ok(response);
+	}
 
 }
