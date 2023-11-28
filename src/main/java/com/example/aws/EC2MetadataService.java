@@ -5,8 +5,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class EC2MetadataService {
 
     private final String METADATA_URL = "http://169.254.169.254/latest/meta-data/";

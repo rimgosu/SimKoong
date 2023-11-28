@@ -381,7 +381,6 @@ public class MainController {
 		DriverConfigLoader loader = dbService.getConnection();
 		Map<String, Object> columnValues = new HashMap<>();
 		columnValues.put("username", username_session);
-		List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
 		
 		Map<String, Object> whereUpdate = new HashMap<>();
 		Map<String, Object> updateValue = new HashMap<>();

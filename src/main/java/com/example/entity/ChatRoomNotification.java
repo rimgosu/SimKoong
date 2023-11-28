@@ -15,12 +15,23 @@ import lombok.ToString;
 public class ChatRoomNotification extends Interaction {
 
     private int notification_count;
+    private String photo_base64;
+    private String nickname;
+    private String last_chatting;
+    private String relative_time;
 
  // Interaction 객체를 인자로 받는 생성자
     public ChatRoomNotification(Interaction interaction) {
-        super(interaction.getFrom_to(), interaction.getInteraction_regdate(), interaction.getInteraction_uuid(), 
-              interaction.getLast_checked(), interaction.getMy_username(), interaction.getOpponent_username(), 
-              interaction.getType(), interaction.getType_uuid());
+        super(
+        		interaction.getFrom_to(), 
+        		interaction.getInteraction_regdate(), 
+        		interaction.getInteraction_uuid(), 
+                interaction.getLast_checked(), 
+                interaction.getMy_username(), 
+                interaction.getOpponent_username(), 
+                interaction.getType(), 
+                interaction.getType_uuid()
+        		);
         // notification_count는 기본값으로 설정하거나, setter를 통해 나중에 설정
         this.notification_count = 0;
     }

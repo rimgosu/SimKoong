@@ -9,16 +9,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.example.entity.ChatRoomNotification;
 import com.example.entity.Chatting;
+import com.example.entity.ChattingNotification;
 import com.example.entity.Info;
 import com.example.entity.Interaction;
+import com.example.tools.TimeCalculator;
 
 
 @Service
@@ -26,6 +26,9 @@ public class ChatServiceImpl implements ChatService {
 
 	@Autowired
 	DBService dbService;
+	
+	@Autowired
+	RecommendService recommendService;
 
 	@Override
 	public void createChatting(Chatting chatting, String username) {
@@ -47,8 +50,7 @@ public class ChatServiceImpl implements ChatService {
 		dbService.save(loader, Chatting.class, chatting);
 
 	}
-
-
+	
 	@Override
 	public List<Chatting> getChattings(UUID room_uuid) {
 		// TODO Auto-generated method stub
@@ -63,6 +65,65 @@ public class ChatServiceImpl implements ChatService {
 		return chattings;
 	}
 
+
+	@Override
+	public List<ChattingNotification> getChattingNotifications(UUID room_uuid) {
+		// TODO Auto-generated method stub
+		System.out.println("[ChatServiceImpl][getChattings]");
+
+		Map<String, Object> colval = new HashMap<String, Object>();
+		colval.put("room_uuid", room_uuid);
+
+		DriverConfigLoader loader = dbService.getConnection();
+		List<Chatting> chattings = dbService.findAllByColumnValues(loader, Chatting.class, colval);
+		List<ChattingNotification> chattingNotifications = new ArrayList<ChattingNotification>();
+		for (Chatting chatting : chattings) {
+			// 기본 속성 복사
+		    ChattingNotification chattingNotification = new ChattingNotification();
+		    chattingNotification.setChat_chatter(chatting.getChat_chatter());
+		    chattingNotification.setChat_content(chatting.getChat_content());
+		    if (chatting.getChat_emoticon() != null) {
+		    	chattingNotification.setChat_emoticon(chatting.getChat_emoticon());		    	
+		    }
+		    chattingNotification.setChat_uuid(chatting.getChat_uuid());
+		    chattingNotification.setChatted_at(chatting.getChatted_at());
+		    chattingNotification.setRead_status(chatting.getRead_status());
+		    chattingNotification.setRoom_uuid(chatting.getRoom_uuid());
+		    
+		    /*
+		     * private String photo_base64;
+		     * private String nickname;
+		     * private String relative_time;
+		     */
+		    
+		    // photo_base64
+		    List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", chatting.getChat_chatter());
+        	Info info = infos.get(0);
+        	
+        	if (info.getPhoto_base64() == null) {
+        		List<String> photos_base64 = recommendService.getS3Photos(info);
+        		chattingNotification.setPhoto_base64(photos_base64.get(0));
+        	} else {
+        		chattingNotification.setPhoto_base64(info.getPhoto_base64());
+        	}
+        	
+        	// nickname
+        	chattingNotification.setNickname(info.getNickname());
+        	
+        	// relative_time
+        	Instant abs_time = chatting.getChatted_at();
+        	TimeCalculator timeCalculator = new TimeCalculator();
+        	String relative_time = timeCalculator.timeAgo(abs_time);
+        	
+        	chattingNotification.setRelative_time(relative_time);
+        	
+        	chattingNotifications.add(chattingNotification);
+		    
+		}
+		
+		return chattingNotifications;
+	}
+
 	@Override
 	public List<ChatRoomNotification> getChatRoomInteractions(String username) {
 		System.out.println("[ChatServiceImpl][getChatRoomInteractions][username:" + username + "]");
@@ -70,9 +131,7 @@ public class ChatServiceImpl implements ChatService {
 		interactionColumnValues.put("from_to", "from");
 		interactionColumnValues.put("type", "chatting");
 		interactionColumnValues.put("my_username", username);
-        
-		System.out.println("[interactionColumnValues.toString()]" + interactionColumnValues.toString());
-        
+		
         DriverConfigLoader loader = dbService.getConnection();
         
         List<Interaction> interactions = dbService.findAllByColumnValues(loader, Interaction.class, interactionColumnValues);
@@ -80,21 +139,63 @@ public class ChatServiceImpl implements ChatService {
         List<ChatRoomNotification> chatRoomNotifications = new ArrayList<ChatRoomNotification>();
         
         for (Interaction interaction : interactions) {
+        	ChatRoomNotification chatRoomNotification = new ChatRoomNotification(interaction);
+        	
         	Map<String, Object> chatColumnValues = new LinkedHashMap<>();
         	chatColumnValues.put("room_uuid", interaction.getType_uuid());
         	chatColumnValues.put("read_status", false);
         	
         	List<Chatting> chattings = dbService.findAllByColumnValues(loader, Chatting.class, chatColumnValues);
         	
+        	/*
+        	 * private String photo_base64;
+        	 * private String nickname;
+        	 * private String last_chatting;
+        	 * private String relative_time;
+        	 */
+        	List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", interaction.getOpponent_username());
+        	Info info = infos.get(0);
+        	
+        	// photo_base64
+        	if (info.getPhoto_base64() == null) {
+        		List<String> photos_base64 = recommendService.getS3Photos(info);
+        		chatRoomNotification.setPhoto_base64(photos_base64.get(0));
+        	} else {
+        		chatRoomNotification.setPhoto_base64(info.getPhoto_base64());
+        	}
+        	
+        	// nickname
+        	chatRoomNotification.setNickname(info.getNickname());
+        	
+        	// last_chatting
+        	// relative_time
+        	Map<String, Object> last_chattingCV = new LinkedHashMap<>();
+        	last_chattingCV.put("room_uuid", interaction.getType_uuid());
+        	last_chattingCV.put("chat_chatter", interaction.getOpponent_username());
+        	List<Chatting> last_chattings = dbService.findAllByColumnValues(loader, Chatting.class, last_chattingCV);
+        	
+        	Chatting last_chatting = null;
+        	Instant abs_time = null;
+        	if (last_chattings != null && !last_chattings.isEmpty()) {
+        		last_chatting = last_chattings.stream().reduce((first, second) -> second).orElse(null);
+        		abs_time = last_chatting.getChatted_at();
+        		
+        		chatRoomNotification.setLast_chatting(last_chatting.getChat_content());
+            	
+            	TimeCalculator timeCalculator = new TimeCalculator();
+            	String relative_time = timeCalculator.timeAgo(abs_time);
+            	
+            	chatRoomNotification.setRelative_time(relative_time);
+        	}
+        	
         	// 내 이름과 비교하여 같으면 알림을 하지 않기.
         	chattings = chattings.stream()
                     .filter(chatting -> !chatting.getChat_chatter().equals(username))
                     .collect(Collectors.toList());
         	
-        	ChatRoomNotification chatRoomNotification = new ChatRoomNotification(interaction);
+        	
         	chatRoomNotification.setNotification_count(chattings.size());
         	chatRoomNotifications.add(chatRoomNotification);
-        	System.out.println(chatRoomNotification.toString());
         }
         
         

@@ -68,7 +68,7 @@
 		        <div class="card">
 		          <div class="card-body">
 		
-		            <ul id="chatRoomList" class="list-unstyled mb-0" style="max-height: 700px;">
+		            <ul id="chatRoomList" class="list-unstyled mb-0" style="height: 700px;">
 		              
 		              <c:forEach var="chatRoomNotification" items="${chatRoomNotifications}" varStatus="status">
 		              		<c:if test="${chatRoomNotification.notification_count == 0}">
@@ -79,15 +79,15 @@
 						    </c:if>
 						        <a href="#!" class="chat-link d-flex justify-content-between" data-room-uuid="${chatRoomNotification.type_uuid}">
 						            <div class="d-flex flex-row">
-						                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-8.webp" alt="avatar"
+						                <img style="width:60px ; height: 60px;" src="data:image/jpeg;base64,${chatRoomNotification.photo_base64}" alt="avatar"
 						                    class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
 						                <div class="pt-1">
-						                    <p class="fw-bold mb-0">${chatRoomNotification.opponent_username}</p>
-						                    <p class="small text-muted">Hello, Are you there?</p>
+						                    <p class="fw-bold mb-0">${chatRoomNotification.nickname}</p>
+						                    <p class="small text-muted">${chatRoomNotification.last_chatting}</p>
 						                </div>
 						            </div>
 						            <div class="pt-1 chatRoomTime">
-						                <span id="timeAgo"></span>
+						                <span id="timeAgo" style="color: #6c757d !important;">${chatRoomNotification.relative_time}</span>
 						                <c:if test="${chatRoomNotification.notification_count != 0}">
 						                    <span class="badge bg-danger float-end">${chatRoomNotification.notification_count}</span>
 						                </c:if>
@@ -96,103 +96,6 @@
 						    </li>
 						</c:forEach>
 
-		              
-		              
-		              
-		              
-		              
-		              
-		              <li class="p-2 border-bottom">
-		                <a href="#!" class="d-flex justify-content-between">
-		                  <div class="d-flex flex-row">
-		                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-1.webp" alt="avatar"
-		                      class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
-		                    <div class="pt-1">
-		                      <p class="fw-bold mb-0">Danny Smith</p>
-		                      <p class="small text-muted">Lorem ipsum dolor sit.</p>
-		                    </div>
-		                  </div>
-		                  <div class="pt-1">
-		                    <p class="small text-muted mb-1">5 mins ago</p>
-		                  </div>
-		                </a>
-		              </li>
-		              <li class="p-2 border-bottom">
-		                <a href="#!" class="d-flex justify-content-between">
-		                  <div class="d-flex flex-row">
-		                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-2.webp" alt="avatar"
-		                      class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
-		                    <div class="pt-1">
-		                      <p class="fw-bold mb-0">Alex Steward</p>
-		                      <p class="small text-muted">Lorem ipsum dolor sit.</p>
-		                    </div>
-		                  </div>
-		                  <div class="pt-1">
-		                    <p class="small text-muted mb-1">Yesterday</p>
-		                  </div>
-		                </a>
-		              </li>
-		              <li class="p-2 border-bottom">
-		                <a href="#!" class="d-flex justify-content-between">
-		                  <div class="d-flex flex-row">
-		                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-3.webp" alt="avatar"
-		                      class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
-		                    <div class="pt-1">
-		                      <p class="fw-bold mb-0">Ashley Olsen</p>
-		                      <p class="small text-muted">Lorem ipsum dolor sit.</p>
-		                    </div>
-		                  </div>
-		                  <div class="pt-1">
-		                    <p class="small text-muted mb-1">Yesterday</p>
-		                  </div>
-		                </a>
-		              </li>
-		              <li class="p-2 border-bottom">
-		                <a href="#!" class="d-flex justify-content-between">
-		                  <div class="d-flex flex-row">
-		                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-4.webp" alt="avatar"
-		                      class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
-		                    <div class="pt-1">
-		                      <p class="fw-bold mb-0">Kate Moss</p>
-		                      <p class="small text-muted">Lorem ipsum dolor sit.</p>
-		                    </div>
-		                  </div>
-		                  <div class="pt-1">
-		                    <p class="small text-muted mb-1">Yesterday</p>
-		                  </div>
-		                </a>
-		              </li>
-		              <li class="p-2 border-bottom">
-		                <a href="#!" class="d-flex justify-content-between">
-		                  <div class="d-flex flex-row">
-		                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-5.webp" alt="avatar"
-		                      class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
-		                    <div class="pt-1">
-		                      <p class="fw-bold mb-0">Lara Croft</p>
-		                      <p class="small text-muted">Lorem ipsum dolor sit.</p>
-		                    </div>
-		                  </div>
-		                  <div class="pt-1">
-		                    <p class="small text-muted mb-1">Yesterday</p>
-		                  </div>
-		                </a>
-		              </li>
-		              <li class="p-2">
-		                <a href="#!" class="d-flex justify-content-between">
-		                  <div class="d-flex flex-row">
-		                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-6.webp" alt="avatar"
-		                      class="rounded-circle d-flex align-self-center me-3 shadow-1-strong" width="60">
-		                    <div class="pt-1">
-		                      <p class="fw-bold mb-0">Brad Pitt</p>
-		                      <p class="small text-muted">Lorem ipsum dolor sit.</p>
-		                    </div>
-		                  </div>
-		                  <div class="pt-1">
-		                    <p class="small text-muted mb-1">5 mins ago</p>
-		                    <span class="text-muted float-end"><i class="fas fa-check" aria-hidden="true"></i></span>
-		                  </div>
-		                </a>
-		              </li>
 		            </ul>
 		
 		          </div>
@@ -345,11 +248,11 @@ $(document).ready(function() {
                         // 사용자 이름이 같은 경우, 왼쪽에 이미지를 위치시킴
                         chattingListHtml += `
                             <li class="d-flex justify-content-between mb-4">
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-6.webp" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
+                                <img style="width:60px;height:60px;" src="data:image/jpeg;base64,\${chat.photo_base64}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between p-3">
-                                        <p class="fw-bold mb-0">\${chat.chat_chatter}</p>
-                                        <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${new Date(chat.chatted_at).toLocaleString()}</p>
+                                        <p class="fw-bold mb-0">\${chat.nickname}</p>
+                                        <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${chat.relative_time}</p>
                                     </div>
                                     <div class="card-body">
                                         <p class="mb-0">\${chat.chat_content}</p>
@@ -358,18 +261,18 @@ $(document).ready(function() {
                             </li>`;
                     } else {
                         // 사용자 이름이 다른 경우, 오른쪽에 이미지를 위치시킴
-                        chattingListHtml += `
+                    	chattingListHtml += `
                             <li class="d-flex justify-content-between mb-4">
-                                <div class="card w-100">
+                                <div class="card">
                                     <div class="card-header d-flex justify-content-between p-3">
-                                        <p class="fw-bold mb-0">\${chat.chat_chatter}</p>
-                                        <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${new Date(chat.chatted_at).toLocaleString()}</p>
+                                        <p class="fw-bold mb-0">\${chat.nickname}</p>
+                                        <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${chat.relative_time}</p>
                                     </div>
                                     <div class="card-body">
                                         <p class="mb-0">\${chat.chat_content}</p>
                                     </div>
                                 </div>
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-5.webp" alt="avatar" class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong" width="60">
+                                <img style="width:60px;height:60px;margin-left:16px;margin-right:0px;" src="data:image/jpeg;base64,\${chat.photo_base64}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
                             </li>`;
                     }
                 });
@@ -491,33 +394,32 @@ function showGreeting(chattingData) {
     // mvo.username과 chattingData.chat_chatter가 일치하는 경우
     if ('${mvo.username}' === chattingData.chat_chatter) {
         htmlContent = `
-        <li class="d-flex justify-content-between mb-4">
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-6.webp" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
+            <li class="d-flex justify-content-between mb-4">
+            <img style="width:60px;height:60px;" src="data:image/jpeg;base64,\${chat.photo_base64}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
             <div class="card">
                 <div class="card-header d-flex justify-content-between p-3">
-                    <p class="fw-bold mb-0">\${chattingData.chat_chatter}</p>
-                    <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${new Date().toLocaleString()}</p>
+                    <p class="fw-bold mb-0">\${chat.nickname}</p>
+                    <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${chat.relative_time}</p>
                 </div>
                 <div class="card-body">
-                    <p class="mb-0">\${chattingData.chat_content}</p>
+                    <p class="mb-0">\${chat.chat_content}</p>
                 </div>
             </div>
-        </li>
-        `;
+        </li>`;
     } else {
         // mvo.username과 chattingData.chat_chatter가 일치하지 않는 경우
     	htmlContent = `
-        <li class="d-flex justify-content-between mb-4">
-            <div class="card w-100">
+            <li class="d-flex justify-content-between mb-4">
+            <div class="card">
                 <div class="card-header d-flex justify-content-between p-3">
-                    <p class="fw-bold mb-0">\${chattingData.chat_chatter}</p>
-                    <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${new Date().toLocaleString()}</p>
+                    <p class="fw-bold mb-0">\${chat.nickname}</p>
+                    <p class="text-muted small mb-0"><i class="far fa-clock"></i>\${chat.relative_time}</p>
                 </div>
                 <div class="card-body">
-                    <p class="mb-0">\${chattingData.chat_content}</p>
+                    <p class="mb-0">\${chat.chat_content}</p>
                 </div>
             </div>
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-5.webp" alt="avatar" class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong" width="60">
+            <img style="width:60px;height:60px;margin-left:16px;margin-right:0px;" src="data:image/jpeg;base64,\${chat.photo_base64}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
         </li>`;
     }
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.example.entity.Chatting;
-import com.example.entity.Info;
+import com.example.entity.ChattingNotification;
 import com.example.service.ChatService;
 import com.example.service.DBService;
 
@@ -44,7 +43,7 @@ public class ChatRestController {
     }
 	
 	@GetMapping("/GetChatting")
-    public List<Chatting> getChatting(@RequestParam UUID room_uuid) {
+    public List<ChattingNotification> getChatting(@RequestParam UUID room_uuid) {
 		System.out.println("[ ChatRestController ] [ getChatting ] [ room_uuid : " + room_uuid + "]");
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,7 +70,7 @@ public class ChatRestController {
 	        }
 	    }
 	    
-		List<Chatting> changedChattings = chatService.getChattings(room_uuid);
+		List<ChattingNotification> changedChattings = chatService.getChattingNotifications(room_uuid);
 	    System.out.println("[ ChatRestController ] [ getChatting ] 변환 후 : " + changedChattings.toString());
 		
         return changedChattings; // 채팅 목록 반환

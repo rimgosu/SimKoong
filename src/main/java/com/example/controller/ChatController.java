@@ -2,7 +2,6 @@ package com.example.controller;
 import java.util.List;
 import java.util.UUID;
 
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -16,7 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.aws.EC2MetadataService;
 import com.example.aws.EC2Migration;
 import com.example.entity.ChatRoomNotification;
-import com.example.entity.Info;
 import com.example.service.ChatService;
 
 

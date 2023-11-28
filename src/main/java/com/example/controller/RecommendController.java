@@ -122,7 +122,6 @@ public class RecommendController {
 		System.out.println("다른 유저의 프로필 방문");
 		// Spring security
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class,"username", oppUserName); 
 		Info info = infos.get(0);		
