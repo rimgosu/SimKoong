@@ -91,13 +91,13 @@ public class RecommendController {
 
 	
 	@GetMapping("/recommendDislike")
-	public String dislike(HttpSession session, @RequestParam String oppUserName) {
+	public String dislike(@RequestParam String oppUserName) {
 		System.out.println("[RecommendController][/recommendDislike]");
 		
-		Info info = (Info) session.getAttribute("mvo");
-		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	
 		// from, to 둘 다 저장
-		recommendService.saveLikeInteraction(info.getUsername(), oppUserName, "dislike");
+		recommendService.saveLikeInteraction(authentication.getName(), oppUserName, "dislike");
 		
 		return "redirect:/recommend";
 	}
