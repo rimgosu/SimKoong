@@ -156,12 +156,11 @@ div.desc {
   clear: both;
 }
 
-
-
 </style>
 </head>
 <body>
-   <div class="container-xxl bg-white p-0">
+ <div class="container-xxl bg-white p-0"> 
+	<div class="cards-list">
       <jsp:include page="header.jsp"></jsp:include>
       <!-- Navbar End -->
       

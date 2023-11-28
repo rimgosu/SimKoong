@@ -47,10 +47,22 @@
 <link href="css/style.css" rel="stylesheet">
 
 <style>
+.container{
+	width: 80%; 
+	height:700px; 
+	padding-top:5%;
+}
 .map_wrap {
 	position: relative;
 	width: 100%;
-	height: 350px;
+	height: 80%;
+}
+
+#map{
+	width: 100%; 
+	height: 100%; 
+	position: relative; 
+	overflow: hidden;"
 }
 
 .title {
@@ -103,16 +115,14 @@ body {
 	<script src="lib/owlcarousel/owl.carousel.min.js"></script>
 	<div class="container-xxl bg-white p-0">
 		<jsp:include page="header.jsp"></jsp:include>
-		<div class="container">
+		<div class="container" >
 			<div class="map_wrap">
-				<div id="map"
-					style="width: 100%; height: 100%; position: relative; overflow: hidden;"></div>
+				<div id="map"></div>
 				<div class="hAddr">
 					<span class="title">현재 위치를 클릭해주세요.</span> <span id="centerAddr"></span>
 					<div id="addressInfo">
 						<p id="cityName"></p>
 						<p id="roadAddress"></p>
-
 					</div>
 				</div>
 			</div>
@@ -129,6 +139,9 @@ body {
     	 /* 도로명주소, 도시이름 보내는 function */
     	 /* <input type="hidden" name="_csrf" value="${_csrf.token}"/> */
        	var csrfToken = document.querySelector("input[name='_csrf']").value;
+    	var map;
+    	var marker;
+    	var clickedLatlng;
         
     	 function sendAddressToServer(AddressData) {     	
     		 
@@ -166,7 +179,24 @@ body {
             var modifiedRoadAddress = cityName + ' ' + cityDistrict; 
             var latitude = latitude;
             var longitude = longitude;
-
+             
+            var markerImage = new kakao.maps.MarkerImage(
+                    'http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',  // 마커 이미지 URL
+                    new kakao.maps.Size(50, 50), // 마커 이미지 크기
+                    { offset: new kakao.maps.Point(25, 50) } // 마커 이미지의 기준점 설정
+                );
+            
+            if(marker){
+            	marker.setMap(null);
+            }
+            
+           /*  var markerPosition = new kakao.maps.LatLng(latitude, longitude); */
+            marker = new kakao.maps.Marker({
+            	position: clickedLatlng,
+            	image: markerImage
+            });
+            marker.setMap(map);
+            
             var AddressData = {
                     roadAddress: modifiedRoadAddress,
                     cityName: cityName,
@@ -175,6 +205,7 @@ body {
                 };     	
             document.getElementById('roadAddress').innerText = '도로명 주소: ' + modifiedRoadAddress;
             document.getElementById('cityName').innerText = '도시명: ' + cityName; // '00시' 보여주기
+           
             
             // 수정된 주소 데이터를 서버로 전송
             sendAddressToServer(AddressData);
@@ -194,12 +225,15 @@ body {
                 level: 1
             };
             
-            var map = new kakao.maps.Map(mapContainer, mapOption); 
+            map = new kakao.maps.Map(mapContainer, mapOption); 
             var geocoder = new kakao.maps.services.Geocoder(); 
                        
             kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
-            	 var clickedLatlng = mouseEvent.latLng; 
-                searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) {
+            	 clickedLatlng = mouseEvent.latLng; 
+            	 var geocoder = new kakao.maps.services.Geocoder();
+            	 geocoder.coord2Address(clickedLatlng.getLng(), clickedLatlng.getLat(), function(result, status){
+            	 
+             /*    searchDetailAddrFromCoords(mouseEvent.latLng, function(result, status) { */
                     if (status === kakao.maps.services.Status.OK) {
                         var roadAddress = result[0].road_address.address_name;
 /*                         var jibunAddress = result[0].address.address_name; */

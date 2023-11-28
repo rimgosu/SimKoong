@@ -33,8 +33,10 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.example.entity.AddressData;
+import com.example.entity.Filter;
 import com.example.entity.Info;
 import com.example.service.DBService;
+import com.example.service.FilterService;
 import com.example.service.InfoService;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -50,6 +52,8 @@ public class MainController {
 	private AmazonS3 s3client;
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	@Autowired
+	 private FilterService filterService;
 
 	@GetMapping("/")
 	public String showMainPage() {
@@ -141,7 +145,11 @@ public class MainController {
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
 		Info userInfo = (Info) infos.get(0);
-
+		
+		//필터
+		List<Filter> filters = dbService.findAllByColumnValue(loader, Filter.class, "username", username);
+	     Filter userFilter = (Filter) filters.get(0);
+		
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
 		// aws에서 가져오기
@@ -170,6 +178,7 @@ public class MainController {
 		}
 		model.addAttribute("imageDatas", imageDatas);
 		model.addAttribute("imageData", base64Encoded);
+		model.addAttribute("filter", userFilter);
 		return "photoUpload";
 	}
 
@@ -186,10 +195,8 @@ public class MainController {
 	@PostMapping("/fileUpload")
 	public String fileUpload(Info info, @RequestParam("file") MultipartFile file,
 			@RequestParam("photoNum") int photoNum, HttpServletRequest request) {
-		System.out.println(file);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
-		System.out.println(username_session);
 		String originalFilename = null;
 		String uploadedFilePath_aws = null;
 		try {
@@ -260,14 +267,12 @@ public class MainController {
 	@GetMapping("/profile")
 	public String showProfilePage(Model model) {
 		System.out.println("마이페이지로 들어왔음.");
-		// 사진 출력되는 곳
-		
+		// 사진 출력되는 곳	
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
 		Info userInfo = (Info) infos.get(0);
-		
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
 		String bucketName = "simkoong-s3";
@@ -297,7 +302,7 @@ public class MainController {
 	}
 
 	@GetMapping("/update")
-	public String showUpdatePage(Info info, Model model) {
+	public String showUpdatePage(Info info, Model model,HttpSession session) {
 		System.out.println("수정페이지로 들어왔음.");
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -305,6 +310,7 @@ public class MainController {
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
 		Info userInfo = (Info) infos.get(0);
+		session.setAttribute("mvo_session", userInfo);
 		
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
@@ -316,7 +322,6 @@ public class MainController {
 				if (imagePath != null) {
 					File file = new File(imagePath);
 					String fileName = file.getName();
-
 					try {
 						S3Object s3object = s3client.getObject(bucketName, fileName);
 						S3ObjectInputStream inputStream = s3object.getObjectContent();
@@ -332,14 +337,15 @@ public class MainController {
 			}
 		}
 		model.addAttribute("imageDatas", imageDatas);
+		
+
 		return "update";
 	}
 
 	@PostMapping("/update")
-	public String update(Info info) {
+	public String update(Info info, Model model) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 		String username_session = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		Map<String, Object> columnValues = new HashMap<>();
@@ -356,7 +362,7 @@ public class MainController {
 		/* updateValue.put("address", info.getAddress()); */
 		updateValue.put("interest", info.getInterest());
 		updateValue.put("mbti", info.getMbti());
-		updateValue.put("sport", info.getMbti());
+		updateValue.put("sport", info.getSport());
 		updateValue.put("smoking", info.getSmoking());
 		updateValue.put("drinking", info.getDrinking());
 		updateValue.put("job", info.getJob());
@@ -365,7 +371,9 @@ public class MainController {
 
 		// 업데이트 진행
 		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
-		return "redirect:/profile";
+		model.addAttribute("mvo",info);
+
+		return "redirect:/update";
 	}
 
 	@GetMapping("/location")
@@ -374,7 +382,7 @@ public class MainController {
 		return "location";
 	}
 	@PostMapping("/location")
-    public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session) {
+    public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session, Model model) {
         System.out.println("[MainController][/location]");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
@@ -405,14 +413,42 @@ public class MainController {
 		updateValue.put("address", addressList);
 		
 		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
-		
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username_session);
 		session.setAttribute("mvo_session", infos.get(0));
-		
+	
      // 클라이언트에게 JSON 형태로 응답을 보냅니다.
         String response = "{\"message\": \"주소 정보를 성공적으로 받았습니다.\"}";
         return ResponseEntity.ok(response);
     }
+	
+	
+	 @PostMapping("/filterUpdate")
+	   public String filterUpdate(Model model, @RequestParam("gender") String gender,@RequestParam("maximum_distance") int maximum_distance, @RequestParam("lower") int lower, @RequestParam("upper") int upper) {
+	        List<Integer> age_range = new ArrayList<>();
+	        age_range.add(lower); // 0번 자리에 최소연령 추가
+	        age_range.add(upper); // 1번 자리에 최대연령 추가
+	        
+	      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	      String username = authentication.getName();
+	      Filter filter = new Filter(username,age_range,gender,maximum_distance);
+	      filterService.updateFilter(filter);
+	      DriverConfigLoader loader = dbService.getConnection();
+	      List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
+	      Info userInfo = (Info) infos.get(0);
+	      model.addAttribute("mvo", userInfo);
+	      model.addAttribute("filter", filter);
+//	      
+	      return "profile";
+	   }
+	   
+	
+	
+	
+	@GetMapping("/test")
+	public String testPage() {
+		System.out.println("위치 정보 확인");	
+		return "test";
+	}
 	
 
 }
