@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +66,6 @@ public class ChatServiceImpl implements ChatService {
 
 		return chattings;
 	}
-
 
 	@Override
 	public List<ChattingNotification> getChattingNotifications(UUID room_uuid) {
@@ -135,6 +136,8 @@ public class ChatServiceImpl implements ChatService {
         DriverConfigLoader loader = dbService.getConnection();
         
         List<Interaction> interactions = dbService.findAllByColumnValues(loader, Interaction.class, interactionColumnValues);
+        
+        System.out.println("[interactions]" + interactions.toString());
         
         List<ChatRoomNotification> chatRoomNotifications = new ArrayList<ChatRoomNotification>();
         
@@ -207,6 +210,11 @@ public class ChatServiceImpl implements ChatService {
 
 	@Override
 	public void insertChatting(Chatting chatting) {
+		
+		chatting.setChat_uuid(UUID.randomUUID());
+		chatting.setChatted_at(Instant.now());
+		chatting.setRead_status(false);
+		
 		DriverConfigLoader loader = dbService.getConnection();
 		dbService.save(loader, Chatting.class, chatting);
 	}
@@ -266,6 +274,53 @@ public class ChatServiceImpl implements ChatService {
 		
 		return chatRoomUuid;
 	}
+
+	@Override
+	public ChattingNotification getChattingNotification(Chatting chatting) {
+	    System.out.println("[ChatServiceImpl][getChattingNotification]");
+
+	    ChattingNotification chattingNotification = new ChattingNotification();
+
+	    if (chatting.getChat_chatter() != null) {
+	        chattingNotification.setChat_chatter(chatting.getChat_chatter());
+	    } if (chatting.getChat_content() != null) {
+	        chattingNotification.setChat_content(chatting.getChat_content());
+	    } if (chatting.getChat_emoticon() != null) {
+	        chattingNotification.setChat_emoticon(chatting.getChat_emoticon());
+	    } if (chatting.getChat_uuid() != null) {
+	        chattingNotification.setChat_uuid(chatting.getChat_uuid());
+	    } if (chatting.getChatted_at() != null) {
+	        chattingNotification.setChatted_at(chatting.getChatted_at());
+	    } if (chatting.getRead_status() != null) {
+	        chattingNotification.setRead_status(chatting.getRead_status());
+	    } if (chatting.getRoom_uuid() != null) {
+	        chattingNotification.setRoom_uuid(chatting.getRoom_uuid());
+	    }
+	    
+	    DriverConfigLoader loader = dbService.getConnection();
+	    List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", chatting.getChat_chatter());
+    	Info info = infos.get(0);
+    	
+    	// photo_base64
+    	if (info.getPhoto_base64() == null) {
+    		List<String> photos_base64 = recommendService.getS3Photos(info);
+    		chattingNotification.setPhoto_base64(photos_base64.get(0));
+    	} else {
+    		chattingNotification.setPhoto_base64(info.getPhoto_base64());
+    	}
+    	
+    	// nickname
+    	chattingNotification.setNickname(info.getNickname());
+    	
+    	// relative_time
+    	Instant abs_time = chatting.getChatted_at();
+    	TimeCalculator timeCalculator = new TimeCalculator();
+    	String relative_time = timeCalculator.timeAgo(abs_time);
+    	chattingNotification.setRelative_time(relative_time);
+    	
+	    return chattingNotification;
+	}
+
 
 
 }

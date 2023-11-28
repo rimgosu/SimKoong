@@ -336,10 +336,10 @@ stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/greetings', (greeting) => {
-        const chattingData = JSON.parse(greeting.body);
+        const chat = JSON.parse(greeting.body);
         // 필요한 데이터를 추출하여 사용
-        // 예: chattingData.chat_uuid, chattingData.chat_content 등
-        showGreeting(chattingData); // 또는 필요에 따라 다른 데이터를 사용
+        // 예: chat.chat_uuid, chat.chat_content 등
+        showGreeting(chat); // 또는 필요에 따라 다른 데이터를 사용
     });
 };
 
@@ -388,11 +388,11 @@ function sendName() {
     $('#chat_content').val('');
 }
 
-function showGreeting(chattingData) {
+function showGreeting(chat) {
     var htmlContent;
     
-    // mvo.username과 chattingData.chat_chatter가 일치하는 경우
-    if ('${mvo.username}' === chattingData.chat_chatter) {
+    // mvo.username과 chat.chat_chatter가 일치하는 경우
+    if ('${mvo.username}' === chat.chat_chatter) {
         htmlContent = `
             <li class="d-flex justify-content-between mb-4">
             <img style="width:60px;height:60px;" src="data:image/jpeg;base64,\${chat.photo_base64}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60">
@@ -407,7 +407,7 @@ function showGreeting(chattingData) {
             </div>
         </li>`;
     } else {
-        // mvo.username과 chattingData.chat_chatter가 일치하지 않는 경우
+        // mvo.username과 chat.chat_chatter가 일치하지 않는 경우
     	htmlContent = `
             <li class="d-flex justify-content-between mb-4">
             <div class="card">

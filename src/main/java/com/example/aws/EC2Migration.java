@@ -1,6 +1,7 @@
 package com.example.aws;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -14,7 +15,7 @@ public class EC2Migration {
 	// s3-key 속성 가져오기
 	public String s3keyPath() {
 		if (this.osName.contains("win")) {
-			return "/keys/s3/s3-keys.json";
+			return "c:/keys/s3/s3-keys.json";
 		} else {
 			return "/keys/s3/s3-keys.json";
 		}
@@ -22,11 +23,29 @@ public class EC2Migration {
 	
 	public String cassandraConfigPath() {
 		if (this.osName.contains("win")) {
-			return "/keys/keyspace/application.conf";
+			return "c:/keys/keyspace/application.conf";
 		} else {
 			return "/keys/keyspace/application.conf";
 		}
 	}
+	
+	public String getFileDirectory() {
+	    String directory;
+
+	    if (this.osName.contains("win")) {
+	        directory = "c:/keys/s3/imgs/";
+	    } else {
+	        directory = "/keys/s3/imgs/";
+	    }
+
+	    File dir = new File(directory);
+	    if (!dir.exists()) {
+	        dir.mkdirs(); // 폴더가 없으면 새로 생성
+	    }
+
+	    return directory;
+	}
+
 	
 	public String ipv4() {
 		if (this.osName.contains("win")) {

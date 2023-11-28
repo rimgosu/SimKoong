@@ -71,8 +71,7 @@ public class ChatRestController {
 	    }
 	    
 		List<ChattingNotification> changedChattings = chatService.getChattingNotifications(room_uuid);
-	    System.out.println("[ ChatRestController ] [ getChatting ] 변환 후 : " + changedChattings.toString());
-		
+	    
         return changedChattings; // 채팅 목록 반환
     }
 	

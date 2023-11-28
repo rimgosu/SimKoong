@@ -21,6 +21,8 @@ public interface ChatService {
 
 	List<ChattingNotification> getChattingNotifications(UUID room_uuid);
 
+	ChattingNotification getChattingNotification(Chatting chatting);
+
 	
 	
 	

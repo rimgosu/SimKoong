@@ -129,7 +129,7 @@ body {
     	 /* 도로명주소, 도시이름 보내는 function */
     	 /* <input type="hidden" name="_csrf" value="${_csrf.token}"/> */
        	var csrfToken = document.querySelector("input[name='_csrf']").value;
-        
+       	
     	 function sendAddressToServer(AddressData) {     	
     		 
     		 
