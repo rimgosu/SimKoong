@@ -185,7 +185,7 @@ div.desc {
 								
 								<div class="responsive">
 									<div class="gallery"> 
-									<img src="data:image/jpeg;base64,${imageData}" alt="S3 Image" class="rounded" style="width:300px; height:350px;">
+									<img src="data:image/jpeg;base64,${imageData}" alt="S3 Image" class="rounded" style="max-width:100%; height:360px;">
 											<form action="${cpath}/fileUpload" method="post" enctype="multipart/form-data" id="imageForm${i.count}" >
 												<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>											   
 												<input type="file" id="photo${i.count}" name="file" accept="image/*">

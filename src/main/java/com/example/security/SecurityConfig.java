@@ -23,6 +23,7 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	    http
 	        .authorizeRequests(authz -> authz
+	            .antMatchers("/fileUpload").permitAll()
 	            .antMatchers("/css/**", "/img/**", "/js/**", "/lib/**", "/scss/**", "/video/**", "/Jointemplate/**", "/Logintemplate/**").permitAll() // 정적 리소스에 대한 접근 허용
 	            .antMatchers("/", "/login", "/join").permitAll()
 	            .anyRequest().authenticated()

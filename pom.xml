@@ -170,6 +170,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
+		<!--thumbnails라이브러리, 사진 크기 조정-->
+		<dependency>
+		    <groupId>net.coobird</groupId>
+		    <artifactId>thumbnailator</artifactId>
+		    <version>0.4.14</version> <!-- 최신 버전 확인 -->
+		</dependency>
+
 
 
 	</dependencies>

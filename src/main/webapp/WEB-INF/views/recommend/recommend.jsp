@@ -77,12 +77,13 @@
 				<div class="col-md-4" style="margin : 0; padding: 0">
 					<div class="profile-card-2"  id="ball">
 						<img src="data:image/jpeg;base64,${imageDatas[0]}" class="img img-responsive">
-						<div class="profile-name">${recommendUser.nickname}</div>
+						<div class="profile-name"><a href="/otherProfile?oppUserName=${recommendUser.username}">${recommendUser.nickname}</a></div>
 						<div class="profile-username">${recommendUser.username}</div>
 						<div class="profile-icons">
 							<!-- 하트부분 -->
 							<a id="heart" style="position: absolute; right: 30px; z-index: 2000;" href="/recommendLike?oppUserName=${recommendUser.username}"><i class="fa fa-heart"></i></a>
 							<a href="/recommendDislike?oppUserName=${recommendUser.username}"><i class="fa fa-times"></i></a>
+							
 						</div>
 					</div>
 					<div class="img-space"></div>
@@ -110,6 +111,7 @@
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>

@@ -12,7 +12,7 @@
 <html lang="en" style="background: white;">
 <head>
 <meta charset="utf-8">
-<title>Makaan - Real Estate HTML Template</title>
+<title>SimKoong</title>
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <meta content="" name="keywords">
 <meta content="" name="description">
@@ -331,7 +331,7 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 }
 </style>
 </head>
-<body>
+<body style="background: white;">
 	<div id="container" class="container-xxl bg-white p-0">
 		<jsp:include page="header.jsp"></jsp:include>
 		<div class="container">
@@ -385,12 +385,12 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 
 						<div class="col-lg-6">
 							<div class="about-text go-to">
-								<h3 class="dark-color">${mvo.nickname},${mvo.age}</h3>
+								<h3 class="dark-color">${recommendUser.nickname},${recommendUser.age}</h3>
 								<h6 class="theme-color lead">
-									<span class="glyphicon">&#xe139;</span> ${mvo.job}
+									<span class="glyphicon">&#xe139;</span> ${recommendUser.job}
 								</h6>
 
-								<p>${mvo.aboutme}</p>
+								<p>${recommendUser.aboutme}</p>
 								<div class="row about-list">
 									<div class="col-md-6">
 										<%-- <div class="media">											
@@ -399,12 +399,12 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 										</div> --%>
 										<div class="media">
 											<label><i class="material-icons">&#xe7fd;</i> MBTI</label>
-											<p>${mvo.mbti}</p>
+											<p>${recommendUser.mbti}</p>
 										</div>
 										<div class="media">
 											<label><span class="glyphicon glyphicon-map-marker"></span>
 												거주 지역</label>
-											<p>${mvo.address[0].replace('[','')}</p>
+											<p>${recommendUser.address[0].replace('[','')}</p>
 										</div>
 
 									</div>
@@ -412,12 +412,12 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 									<div class="col-md-6">
 										<div class="media">
 											<label><i class="material-icons">school</i> 학력</label>
-											<p>${mvo.school}</p>
+											<p>${recommendUser.school}</p>
 										</div>
 										<div class="media">
 											<label><i style='font-size: 24px' class='fas'>&#xf86d;</i>
 												관심사</label> <br>
-											<p>${mvo.interest}</p>
+											<p>${recommendUser.interest}</p>
 
 										</div>
 
@@ -434,7 +434,7 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 									<h6 class="count h2" data-to="500" data-speed="500">
 										<i class='fas fa-dumbbell' style='font-size: 24px'></i> 운동 선호
 									</h6>
-									<p class="m-0px font-w-600">${mvo.sport}</p>
+									<p class="m-0px font-w-600">${recommendUser.sport}</p>
 								</div>
 							</div>
 							<div class="col-6 col-lg-4">
@@ -443,7 +443,7 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 										<i class='fas fa-wine-glass-alt' style='font-size: 36px'></i>
 										음주 여부
 									</h6>
-									<p class="m-0px font-w-600">${mvo.drinking}</p>
+									<p class="m-0px font-w-600">${recommendUser.drinking}</p>
 								</div>
 							</div>
 							<div class="col-6 col-lg-4">
@@ -451,7 +451,7 @@ a.slider::before, a.slider::after, a.slide__prev, a.slide__next {
 									<h6 class="count h2" data-to="850" data-speed="850">
 										<i class='fas fa-smoking' style='font-size: 24px'></i> 흡연 여부
 									</h6>
-									<p class="m-0px font-w-600">${mvo.smoking }</p>
+									<p class="m-0px font-w-600">${recommendUser.smoking }</p>
 								</div>
 							</div>
 

@@ -1,9 +1,13 @@
 package com.example.controller;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +16,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
+import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.example.entity.Info;
 import com.example.service.DBService;
 import com.example.service.RecommendService;
@@ -25,6 +34,9 @@ public class RecommendController {
 	
 	@Autowired
 	RecommendService recommendService;
+	
+	@Autowired // 사진 업로드할때 필요
+	private AmazonS3 s3client;
 
 	@GetMapping("/recommend")
 	public String showRecommendPage(Model model) {
@@ -34,7 +46,6 @@ public class RecommendController {
 	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	    String username = authentication.getName();
 	    
-
 		// TODO : RecommendUser는 현재 랜덤으로 아무나 가져오는 매커니즘임.
 		// 추후 이성추천 시스템과 필터링 시스템을 거쳐 가지고 오는 것으로 바뀌어야함.
 		// TODO : 한 번 좋아요를 누르면 더 이상 추천에 뜨지 않음
@@ -103,6 +114,46 @@ public class RecommendController {
 		model.addAttribute("oppInfo", oppInfo);
 		
 		return "recommend/matching";
+	}
+	
+	
+	@GetMapping("/otherProfile")
+	public String showOtherProfilePage( Model model, @RequestParam String oppUserName) {
+		System.out.println("다른 유저의 프로필 방문");
+		// Spring security
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		DriverConfigLoader loader = dbService.getConnection();
+		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class,"username", oppUserName); 
+		Info info = infos.get(0);		
+//		사진 가져오는 부분
+		Map<Integer, String> photoMap = info.getPhoto();
+		List<String> imageDatas = new ArrayList<>();
+		String bucketName = "simkoong-s3";
+		String base64Encoded = null;
+		if (photoMap != null) {
+			for (int i = 1; i <= 4; i++) {
+				String imagePath = photoMap.get(i);
+				if (imagePath != null) {
+					File file = new File(imagePath);
+					String fileName = file.getName();
+					try {
+					    S3Object s3object = s3client.getObject(bucketName, fileName);
+					    S3ObjectInputStream inputStream = s3object.getObjectContent();
+					    byte[] bytes = IOUtils.toByteArray(inputStream);
+					    base64Encoded = Base64.encodeBase64String(bytes);
+					    imageDatas.add(base64Encoded);
+					} catch (Exception e) {
+					    // 파일이 존재하지 않을 때 빈 이미지 추가
+					    base64Encoded = ""; // 빈 문자열 또는 기본 이미지 URL 설정
+					    imageDatas.add(base64Encoded);
+					}
+				}
+			}
+		} 
+		model.addAttribute("imageDatas", imageDatas);
+		model.addAttribute("recommendUser", info);
+		return "otherProfile";
 	}
 
 	
