@@ -65,9 +65,7 @@
 		
 		      <div class="col-md-6 col-lg-5 col-xl-4 mb-4 mb-md-0">
 		
-		        <h5 class="font-weight-bold mb-3 text-center text-lg-start">Member</h5>
-		
-		        <div class="card">
+		        <div class="card" style="height: 626px; border-color: #999999; box-shadow: 2px 2px 2px rgba(128, 128, 128, 0.2);">
 		          <div class="card-body">
 		
 		            <ul id="chatRoomList" class="list-unstyled mb-0" style="height: 700px;">
@@ -197,9 +195,9 @@ $(document).ready(function() {
                 sendHtml += `
 						    <form class="form-inline">       
 						        <li class="bg-white mb-3" style="border-radius: 15px;">
-						            <div class="form-outline" style="width: 100%; position: relative;">
-						                <textarea placeholder="Message.." class="form-control" id="chat_content" rows="1" style="border-radius:12px; resize: none; line-height: 45px; height:60px; border-color: #999999;"></textarea>
-						                <button type="submit" id="send" class="btn btn-info btn-rounded float-end" style="border-radius:7px; position: absolute; right: 10px; bottom: 10px; z-index: 100; background-color:#FFFFFF; border-color:#999999; width: 40px; height: 40px;">
+						            <div class="form-outline" style="width: 100%; position: relative; overflow: hidden;">
+						                <textarea placeholder="Message.." class="form-control" id="chat_content" rows="1" style="border-radius:12px; resize: none; line-height: 45px; height:60px; border-color: #999999; max-height: 200px; overflow: hidden;"></textarea>
+						                <button type="submit" id="send" class="btn btn-info btn-rounded float-end" style="border-radius:7px; position: absolute; right: 10px; bottom: 10px; z-index: 100; background-color:#FFFFFF; border-color:#999999; width: 40px; height: 40px; padding-left: 10px;">
 						                    <i style="color:#767676;" class="far fa-paper-plane"></i>
 						                </button>
 						            </div>
@@ -398,6 +396,10 @@ $(document).on('keydown', '#chat_content', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendName();
+    } else if (e.key === 'Enter' && e.shiftKey) {
+        // Enter만 눌렀을 때 (Shift + Enter는 제외)
+        this.style.height = `\${parseInt(this.style.height, 10) + 24}px`; // 높이를 24px씩 늘림
+        
     }
 });
 

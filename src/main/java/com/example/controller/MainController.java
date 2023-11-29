@@ -34,8 +34,10 @@ import com.amazonaws.util.IOUtils;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.example.aws.EC2Migration;
 import com.example.entity.AddressData;
+import com.example.entity.Filter;
 import com.example.entity.Info;
 import com.example.service.DBService;
+import com.example.service.FilterService;
 import com.example.service.InfoService;
 import com.example.service.RecommendService;
 
@@ -54,6 +56,8 @@ public class MainController {
 	PasswordEncoder passwordEncoder;
 	@Autowired
 	RecommendService recommendService;
+	@Autowired
+	private FilterService filterService;
 
 	@GetMapping("/fileUploadTest")
 	public String fileUploadTest() {
@@ -136,6 +140,8 @@ public class MainController {
 		columnValues.put("username", username);
 		List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
 
+		filterService.joinFilter(username);
+
 		if (listInfo.size() == 0) {
 			return "redirect:join";
 		} else {
@@ -214,7 +220,7 @@ public class MainController {
 		try {
 			// 고정된 로컬 경로 설정
 			EC2Migration ec2Migration = new EC2Migration();
-			
+
 			String localPath = ec2Migration.getFileDirectory();
 			String uploadedFilePath = null;
 
@@ -295,7 +301,11 @@ public class MainController {
 		String username = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
+		System.out.println("[infos : ]" + infos.toString());
 		Info userInfo = (Info) infos.get(0);
+		List<Filter> filters = dbService.findAllByColumnValue(loader, Filter.class, "username", username);
+		System.out.println("[filters : ]" + filters.toString());
+		Filter userFilter = filters.get(0);
 
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
@@ -322,18 +332,21 @@ public class MainController {
 			}
 		}
 		model.addAttribute("imageDatas", imageDatas);
+		model.addAttribute("mvo", userInfo);
+		model.addAttribute("filter", userFilter);
 		return "profile";
 	}
 
 	@GetMapping("/update")
-	public String showUpdatePage(Info info, Model model) {
-		System.out.println("[MainController][@GetMapping/update]");
+	public String showUpdatePage(Info info, Model model, HttpSession session) {
+		System.out.println("수정페이지로 들어왔음.");
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username);
 		Info userInfo = (Info) infos.get(0);
+		session.setAttribute("mvo_session", userInfo);
 
 		Map<Integer, String> photoMap = userInfo.getPhoto();
 		List<String> imageDatas = new ArrayList<>();
@@ -345,7 +358,6 @@ public class MainController {
 				if (imagePath != null) {
 					File file = new File(imagePath);
 					String fileName = file.getName();
-
 					try {
 						S3Object s3object = s3client.getObject(bucketName, fileName);
 						S3ObjectInputStream inputStream = s3object.getObjectContent();
@@ -361,6 +373,7 @@ public class MainController {
 			}
 		}
 		model.addAttribute("imageDatas", imageDatas);
+
 		return "update";
 	}
 
@@ -386,12 +399,13 @@ public class MainController {
 		/* updateValue.put("address", info.getAddress()); */
 		updateValue.put("interest", info.getInterest());
 		updateValue.put("mbti", info.getMbti());
-		updateValue.put("sport", info.getMbti());
+		updateValue.put("sport", info.getSport());
 		updateValue.put("smoking", info.getSmoking());
 		updateValue.put("drinking", info.getDrinking());
 		updateValue.put("job", info.getJob());
 		updateValue.put("school", info.getSchool());
 		updateValue.put("aboutme", info.getAboutme());
+		updateValue.put("sex", info.getSex());
 
 		// 업데이트 진행
 		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
@@ -400,18 +414,20 @@ public class MainController {
 
 	@GetMapping("/location")
 	public String locationPage() {
-		System.out.println("[MainController][@GetMapping/location]");
+		System.out.println("위치 정보 확인");
 		return "location";
 	}
 
 	@PostMapping("/location")
-	public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session) {
-		System.out.println("[MainController][@PostMapping/location]");
+	public ResponseEntity<String> receiveAddress(@RequestBody AddressData addressData, Info info, HttpSession session,
+			Model model) {
+		System.out.println("[MainController][/location]");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username_session = authentication.getName();
 		DriverConfigLoader loader = dbService.getConnection();
 		Map<String, Object> columnValues = new HashMap<>();
 		columnValues.put("username", username_session);
+		List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
 
 		Map<String, Object> whereUpdate = new HashMap<>();
 		Map<String, Object> updateValue = new HashMap<>();
@@ -435,7 +451,6 @@ public class MainController {
 		updateValue.put("address", addressList);
 
 		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
-
 		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username_session);
 		session.setAttribute("mvo_session", infos.get(0));
 
