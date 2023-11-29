@@ -1,18 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix ="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix ="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<c:set var="cpath" value="${pageContext.request.contextPath}" />
+<c:set var="cpath" value="${pageContext.request.contextPath}" />    
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-<sec:authentication property="principal" var="mvo" />
-
+<sec:authentication property="principal" var="security_mvo" />
 <!DOCTYPE html>
 <html lang="en" style="background: white;">
 <head>
+
     <meta charset="utf-8">
-    <title>SimKoong</title>
+    <title>Babe</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -39,69 +39,69 @@
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
     <style>
-body{margin-top:20px;
-background-color:#f2f6fc;
-color:#69707a;
-}
-.img-account-profile {
-    height: 10rem;
-}
-.rounded-circle {
-    border-radius: 50% !important;
-}
-.card {
-    box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
-}
-.card .card-header {
-    font-weight: 500;
-}
-.card-header:first-child {
-    border-radius: 0.35rem 0.35rem 0 0;
-}
-.card-header {
-    padding: 1rem 1.35rem;
-    margin-bottom: 0;
-    background-color: rgba(33, 40, 50, 0.03);
-    border-bottom: 1px solid rgba(33, 40, 50, 0.125);
-}
-.form-control, .dataTable-input {
-    display: block;
-    width: 100%;
-    padding: 0.875rem 1.125rem;
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: 1;
-    color: #69707a;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #c5ccd6;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    border-radius: 0.35rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.nav-borders .nav-link.active {
-    color: #0061f2;
-    border-bottom-color: #0061f2;
-}
-.nav-borders .nav-link {
-    color: #69707a;
-    border-bottom-width: 0.125rem;
-    border-bottom-style: solid;
-    border-bottom-color: transparent;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: 1rem;
-    margin-right: 1rem;
-}
+		body{margin-top:20px;
+		background-color:#f2f6fc;
+		color:#69707a;
+		}
+		.img-account-profile {
+		    height: 10rem;
+		}
+		.rounded-circle {
+		    border-radius: 50% !important;
+		}
+		.card {
+		    box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+		}
+		.card .card-header {
+		    font-weight: 500;
+		}
+		.card-header:first-child {
+		    border-radius: 0.35rem 0.35rem 0 0;
+		}
+		.card-header {
+		    padding: 1rem 1.35rem;
+		    margin-bottom: 0;
+		    background-color: rgba(33, 40, 50, 0.03);
+		    border-bottom: 1px solid rgba(33, 40, 50, 0.125);
+		}
+		.form-control, .dataTable-input {
+		    display: block;
+		    width: 100%;
+		    padding: 0.875rem 1.125rem;
+		    font-size: 0.875rem;
+		    font-weight: 400;
+		    line-height: 1;
+		    color: #69707a;
+		    background-color: #fff;
+		    background-clip: padding-box;
+		    border: 1px solid #c5ccd6;
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    appearance: none;
+		    border-radius: 0.35rem;
+		    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+		}
+		
+		.nav-borders .nav-link.active {
+		    color: #0061f2;
+		    border-bottom-color: #0061f2;
+		}
+		.nav-borders .nav-link {
+		    color: #69707a;
+		    border-bottom-width: 0.125rem;
+		    border-bottom-style: solid;
+		    border-bottom-color: transparent;
+		    padding-top: 0.5rem;
+		    padding-bottom: 0.5rem;
+		    padding-left: 0;
+		    padding-right: 0;
+		    margin-left: 1rem;
+		    margin-right: 1rem;
+		}
     </style>
 </head>
 <body style="background: white;">
-    <div class="container-xxl bg-white p-0">
+    
         <jsp:include page="header.jsp"></jsp:include>
         <!-- Navbar End -->
 
@@ -137,8 +137,6 @@ color:#69707a;
         <a class="nav-link" href="https://www.bootdey.com/snippets/view/bs5-edit-notifications-page"  target="__blank">Notifications</a>
     </nav> --><!-- 
     <hr class="mt-0 mb-4"> -->
-    <form>
-    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
     <div class="row">
         <div class="col-xl-4">
             <!-- Profile picture card-->
@@ -146,45 +144,141 @@ color:#69707a;
                 <div class="card-header">Profile Picture</div>
                 <div class="card-body text-center">
                     <!-- Profile picture image-->
-                    <img class="img-account-profile rounded-circle mb-2" src="img/team-1.jpg" alt="">
+                    <img class="img-account-profile rounded-circle mb-2" src="img/card/suji.png" alt="" >
                     <!-- Profile picture help block-->
-                    <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
+                  
+                    <textarea class="border border-2 small mb-1" style="resize: none; outline: none; width: 100%; max-width: 100%; height: auto;">${mvo.aboutme}</textarea>
+                   
                     <!-- Profile picture upload button-->
-                    <button class="btn btn-primary" type="button">Upload new image</button>
+                    <!-- <!-- <button class="btn btn-primary" type="button"></button> -->
                 </div>
             </div>
-            <br>
+			<br>
+
             <div class="card mb-4 mb-xl-0">
-            	<div class="card-header text-center">About me</div>
-                <div class="card-body">
+            	<div class="card-header">Recommend Setting</div> 
+                <div class="card-body" style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="small font-italic text-muted mb-4">
-                    	<textarea rows="9" cols="48" style="border: none; resize: none; outline: none;">${mvo.aboutme}</textarea>
+	                    <form action="/filterUpdate" method="POST">
+	                    	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+	                    	<label class="small mb-1" for="inputGender">Gender</label>
+		                    	<table class="">
+		                    		<tr class="something">
+		                    			<td width="50%">
+		                    				<div class="form-check w-5"  >
+												<c:choose>
+												    <c:when test="${filter.gender == 'Male'}">
+												        <input class="form-check-input" type="radio" name="gender" id="male" value="Male" checked>
+												    </c:when>
+												    <c:otherwise>
+												        <input class="form-check-input" type="radio" name="gender" id="male" value="Male">
+												    </c:otherwise>
+												</c:choose>
+											  <label class="form-check-label" for="flexRadioDefault1">
+											    <span>Male</span>  
+											  </label>
+											</div>
+											
+		                    			</td>
+		                    			
+		                    			<td width="50%" >
+		                    				<div class="form-check">
+											  	<c:choose>
+												    <c:when test="${filter.gender == 'Female'}">
+												        <input class="form-check-input" type="radio" name="gender" id="female" value="Female" checked>
+												    </c:when>
+												    <c:otherwise>
+												        <input class="form-check-input" type="radio" name="gender" id="female" value="Female" >
+												    </c:otherwise>
+												</c:choose>
+											  <label class="form-check-label" for="flexRadioDefault1">
+											    <span>Female</span>   
+											  </label>
+											</div>
+		                    			</td>
+		                    		</tr>
+		                    	</table>
+		
+								
+							
+							
+							<label class="large mb-1" for="inputDistance">Distance </label> <span id="distanceRangeValue" style="float: right;">${filter.maximum_distance} km</span>
+						    
+						    <input name="maximum_distance" type="range" class="form-range"  id="distanceRange" min="0" value="${filter.maximum_distance}" max="500" oninput="document.getElementById('distanceRangeValue').innerHTML=this.value + ' km';">
+						    
+							
+							<div class="range-slider" style="display: flex; flex-direction: column; gap: 10px;">
+								<label class="large mb-1" for="inputUsername"> Minimum Age <span id="MinimumRangeValue" style="float: right;">${filter.age_range[0]} years old</span></label>
+	
+							    <input name="lower" type="range" class="form-range" id="lower" min="0" max="100" step="1" value="${filter.age_range[0]}">
+							    <label class="large mb-1" for="inputUsername"> Maximum Age <span id="MaximumRangeValue" style="float: right;">${filter.age_range[1]} years old</span></label>
+							    <input name="upper" type="range" class="form-range" id="upper" min="0" max="100" step="1" value="${filter.age_range[1]}">
+							    
+							</div>
+							<button id="saveChangesButton" class="btn btn-primary" style="float: right;" type="submit">설정 저장</button>
+						</form>
+						<script type="text/javascript">
+							let lowerSlider = document.getElementById("lower");
+							let upperSlider = document.getElementById("upper");
+							
+							//let output = document.getElementById("MinimumRangeValue");
+	
+							function updateSliderValue() {
+							    if (parseInt(lowerSlider.value) > parseInt(upperSlider.value)) {
+							        let temp = lowerSlider.value;
+							        lowerSlider.value = upperSlider.value;
+							        upperSlider.value = temp;
+							    }
+							    
+							    document.getElementById('MinimumRangeValue').innerHTML=lowerSlider.value + " years old";
+							    document.getElementById('MaximumRangeValue').innerHTML=upperSlider.value + " years old";;
+	
+							    //output.innerHTML = `${lowerSlider.value} ~ ${upperSlider.value}`;
+							}
+	
+							lowerSlider.oninput = function() {
+							    updateSliderValue();
+							};
+	
+							upperSlider.oninput = function() {
+							    updateSliderValue();
+							};
+							
+						
+						</script>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-8">
+         <div class="col-xl-8">
             <!-- Account details card-->
             <div class="card mb-4">
                 <div class="card-header">Account Details</div>
                 <div class="card-body">
                     <form>
                         <!-- Form Group (username)-->
-                        <div class="mb-3">
-                            <label class="small mb-1" for="inputUsername">Nick</label>
-                            <input class="form-control" id="inputUsername" type="text" placeholder="Enter your username" value="${mvo.nickname}">
+                        <div class="row gx-3 mb-3">
+	                        <div class="col-md-6">
+	                            <label class="small mb-1" for="inputUsername">Nick</label>
+	                            
+	                            <input class="form-control" id="inputUsername" type="text" placeholder="Enter your username" value="${mvo.nickname}">
+	                        </div>
+	                        <div class="col-md-6">
+                                <label class="small mb-1" for="inputFirstName">Gender</label>
+                                <input class="form-control" id="inputFirstName" type="text" placeholder="Enter your first name" value="${mvo.sex}">
+                            </div>
                         </div>
                         <!-- Form Row-->
                         <div class="row gx-3 mb-3">
                             <!-- Form Group (first name)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputFirstName">Age</label>
-                                <input class="form-control" id="inputFirstName" type="number" placeholder="Enter your first name" value="${mvo.age}">
+                                <input class="form-control" id="inputFirstName" name="age" type="number" placeholder="Enter your first name" value="${mvo.age}">
                             </div>
                             <!-- Form Group (last name)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputLastName">Phone</label>
-                                <input class="form-control" id="inputLastName" type="tel" placeholder="Enter your last name" value="${mvo.phone}">
+                                <input class="form-control" id="inputLastName" name="phone" type="tel" placeholder="Enter your last name" value="${mvo.phone}">
                             </div>
                         </div>
                         <!-- Form Row        -->
@@ -192,23 +286,23 @@ color:#69707a;
                             <!-- Form Group (organization name)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputOrgName">Address</label>
-                                <input class="form-control" id="inputOrgName" type="text" placeholder="Enter your organization name" value="${mvo.address}">
+                                <input class="form-control" id="inputOrgName" name="address" type="text" placeholder="Enter your organization name" value="${mvo.address[0]}">
                             </div>
                             <!-- Form Group (location)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputLocation">Interest</label>
-                                <input class="form-control" id="inputLocation" type="text" placeholder="Enter your location" value="${mvo.interest}">
+                                <input class="form-control" id="inputLocation" name="interest" type="text" placeholder="Enter your location" value="${mvo.interest}">
                             </div>
                         </div>
                         <!-- Form Group (email address)-->
                         <div class="row gx-3 mb-3">
                         	<div class="col-md-6">
                             	<label class="small mb-1" for="inputEmailAddress">MBTI</label>
-                            	<input class="form-control" id="inputEmailAddress" type="text" placeholder="Enter your email address" value="${mvo.mbti}">
+                            	<input class="form-control" id="inputEmailAddress" name="mbti" type="text" placeholder="Enter your email address" value="${mvo.mbti}">
                         	</div>
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputPhone">Education</label>
-                                <input class="form-control" id="inputPhone" type="text" placeholder="Enter your phone number" value="${mvo.school}">
+                                <input class="form-control" id="inputPhone" name="school" type="text" placeholder="Enter your phone number" value="${mvo.school}">
                             </div>
                         </div>
                         
@@ -217,42 +311,45 @@ color:#69707a;
                             <!-- Form Group (phone number)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputPhone">Sport</label>
-                                <input class="form-control" id="inputPhone" type="text" placeholder="Enter your phone number" value="${mvo.sport}">
+                                <input class="form-control" id="inputPhone" name="sport" type="text" placeholder="Enter your phone number" value="${mvo.sport}">
                             </div>
                             <!-- Form Group (birthday)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputBirthday">Smoke</label>
-                                <input class="form-control" id="inputBirthday" type="text" name="birthday" placeholder="Enter your birthday" value="${mvo.smoking}">
+                                <input class="form-control" id="inputBirthday" type="text" name="smoking" placeholder="Enter your birthday" value="${mvo.smoking}">
                             </div>
                         </div>
                         <div class="row gx-3 mb-3">
                             <!-- Form Group (phone number)-->
                             <div class="col-md-6">
-                                <label class="small mb-1" for="inputPhone">Dring</label>
+                                <label class="small mb-1" for="inputPhone">Drink</label>
                                 <input class="form-control" id="inputPhone" type="text" placeholder="Enter your phone number" value="${mvo.drinking}">
                             </div>
                             <!-- Form Group (birthday)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputBirthday">Job</label>
-                                <input class="form-control" id="inputBirthday" type="text" name="birthday" placeholder="Enter your birthday" value="${mvo.job}">
+                                <input class="form-control" id="inputBirthday" type="text" name="job" placeholder="Enter your birthday" value="${mvo.job}">
                             </div>
                         </div>
                         <!-- Save changes button-->
-                        <button class="btn btn-primary" type="button">Save changes</button>
+                        <br>
+                        <button class="btn btn-primary" style="float: right;" type="button">Save changes</button>
+                        
                     </form>
+                    
                 </div>
             </div>
         </div>
     </div>
     
-    </form>
+
 </div>
 </div>
         <!-- Header End -->
 
 
         <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" style="background: pink; border-color: pink;"><i class="bi bi-arrow-up"></i></a>
     </div>
     
     <!-- JavaScript Libraries -->
