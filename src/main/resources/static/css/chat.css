@@ -34,3 +34,12 @@ ul::-webkit-scrollbar {
 #chatting-ul .card {
   flex: 1; /* 카드가 리스트 아이템의 전체 높이를 차지하도록 설정 */
 }
+
+.fa-clock {
+  margin-right: 5px;
+}
+
+.form-control:focus {
+    outline: none;        /* Removes the outline */
+    box-shadow: none;     /* Removes the box-shadow */
+}
