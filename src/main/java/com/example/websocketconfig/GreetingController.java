@@ -1,8 +1,5 @@
 package com.example.websocketconfig;
 
-import java.time.Instant;
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -38,12 +35,19 @@ public class GreetingController {
 		
 		ChattingNotification chattingNotification = chatService.getChattingNotification(chatting);
 		
-		
-		
-		
 		Thread.sleep(1000);
 		// Greeting 객체를 만들고 반환함
 		return chattingNotification;
 	}
+	
+	@MessageMapping("/typing")
+	@SendTo("/topic/typingStatus")
+	public TypingNotification sendTypingStatus(TypingNotification notification) {
+		System.out.println("[GreetingController][sendTypingStatus][notification : ]" + notification.toString());
+		
+	    return notification;
+	}
+
+	
 
 }

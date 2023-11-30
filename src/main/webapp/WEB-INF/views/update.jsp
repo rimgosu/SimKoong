@@ -175,7 +175,7 @@ input:focus {
             	<div class="card-header text-center">자기 소개</div>
                 <div class="card-body">
                     <div class="small font-italic text-muted mb-4">
-                    	<textarea rows="7" cols="48" name="aboutme" style="border: none; resize: none; outline: none; width: 100%;" placeholder="내용을 입력하세요">${mvo.aboutme}</textarea>
+                    	<textarea rows="7" cols="48" name="aboutme" style="border: none; resize: none; outline: none; width: 100%;" placeholder="내용을 입력하세요" required>${mvo.aboutme}</textarea>
                     </div>
                 </div>
             </div>

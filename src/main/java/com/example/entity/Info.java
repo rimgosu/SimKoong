@@ -38,8 +38,4 @@ public class Info {
     private List<String> address;
     private Map<Integer, String> photo;
 
-
-    // Add getters and setters for all fields here
-
-    // You can also add constructors as needed
 }

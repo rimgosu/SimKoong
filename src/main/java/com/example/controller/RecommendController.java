@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpSession;
 
@@ -51,12 +52,13 @@ public class RecommendController {
 		// TODO : 한 번 좋아요를 누르면 더 이상 추천에 뜨지 않음
 		Info recommendUser = recommendService.getRecommendUsers(username);
 
-		List<String> imageDatas = recommendService.getS3Photos(recommendUser);
+		if (recommendUser != null) {
+			List<String> imageDatas = recommendService.getS3Photos(recommendUser);
+			
+			model.addAttribute("imageDatas", imageDatas);
+			model.addAttribute("recommendUser", recommendUser);
+		} 
 		
-
-		model.addAttribute("imageDatas", imageDatas);
-		model.addAttribute("recommendUser", recommendUser);
-
 		return "recommend/recommend";
 	}
 	

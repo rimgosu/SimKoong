@@ -36,6 +36,7 @@ import com.example.aws.EC2Migration;
 import com.example.entity.AddressData;
 import com.example.entity.Filter;
 import com.example.entity.Info;
+import com.example.security.CustomUser;
 import com.example.service.DBService;
 import com.example.service.FilterService;
 import com.example.service.InfoService;
@@ -151,7 +152,7 @@ public class MainController {
 
 	@GetMapping("/photoUpload") // 사진 업로드 하는 페이지로 이동
 	public String showInfoPage(Model model) {
-		System.out.println("사진입력으로 들어왔음.");
+		System.out.println("[MainController][/photoUpload]");
 		// 사진 출력되는 곳
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -406,9 +407,18 @@ public class MainController {
 		updateValue.put("school", info.getSchool());
 		updateValue.put("aboutme", info.getAboutme());
 		updateValue.put("sex", info.getSex());
+		updateValue.put("isFirst", false);
 
 		// 업데이트 진행
 		dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
+		
+		// isFirst 값 업데이트
+		// 현재 인증된 사용자가 CustomUser 타입인지 확인
+		if (authentication.getPrincipal() instanceof CustomUser) {
+		    CustomUser customUser = (CustomUser) authentication.getPrincipal();
+		    customUser.setIsFirst(false);
+		}
+		
 		return "redirect:/profile";
 	}
 

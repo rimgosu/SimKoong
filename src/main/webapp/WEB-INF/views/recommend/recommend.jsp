@@ -53,48 +53,51 @@
 <link href="css/card.css" rel="stylesheet">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<style type="text/css">
-	
-</style>
-
-
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 </head>
 
 <body style="background: white;">
-	<div class="container-xxl bg-white p-0">
+	<div class="container-xxl bg-white p-0"></div>
 		<jsp:include page="../header.jsp"></jsp:include>
 		<!-- Navbar End -->
 
 		<!-- 추천 카드 시작 -->
-		
+		<c:if test="${empty recommendUser}">
 		<div class="container">
-			<div style="display: flex; justify-content: center;">
-				<div class="col-md-4 like-area droppable" style="align-items: center; justify-content: center; display: flex;">
-					<!-- <i class="far fa-heart"></i> -->
+				<div id="randomImage" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+					<img src="img/x/x2.png" style="width: 60%; display: block; ">
+					<p style="color: #ff8cb9; font-size: 70px; margin-top: 20px; font-family: 'Nanum Pen Script';">더 이상 추천이 없습니다</p>
 				</div>
-				<!-- <img src="https://en.js.cx/clipart/soccer-gate.svg" id="gate" class="droppable" style="width: 100%; width: 100px; height: auto;"> -->
-				<div class="col-md-4" style="margin : 0; padding: 0">
-					<div class="profile-card-2"  id="ball">
-						<img src="data:image/jpeg;base64,${imageDatas[0]}" class="img img-responsive">
-						<div class="profile-name"><a href="/otherProfile?oppUserName=${recommendUser.username}">${recommendUser.nickname}</a></div>
-						<div class="profile-username">${recommendUser.username}</div>
-						<div class="profile-icons">
-							<!-- 하트부분 -->
-							<a id="heart" style="position: absolute; right: 30px; z-index: 2000;" href="/recommendLike?oppUserName=${recommendUser.username}"><i class="fa fa-heart"></i></a>
-							<a href="/recommendDislike?oppUserName=${recommendUser.username}"><i class="fa fa-times"></i></a>
-							
-						</div>
-					</div>
-					<div class="img-space"></div>
-				</div>
-				<div class="col-md-4 dislike-area droppable" style="align-items: center; justify-content: center; display: flex;">
-					
-				</div>
-				<!-- <img src="https://en.js.cx/clipart/soccer-gate.svg" id="gate" class="droppable" style="width: 100%; width: 100px; height: auto;"> -->
 			</div>
-		</div>
-		<!-- 추천 카드 끝 -->
+		</c:if>
+		<c:if test="${not empty recommendUser}">
+			<div class="container">
+				<div style="display: flex; justify-content: center;">
+					<div class="col-md-4 like-area droppable" style="align-items: center; justify-content: center; display: flex;">
+						<!-- <i class="far fa-heart"></i> -->
+					</div>
+					<div class="col-md-4" style="margin : 0; padding: 0">
+						<div class="profile-card-2"  id="ball">
+							<img src="data:image/jpeg;base64,${imageDatas[0]}" class="img img-responsive">
+							<div class="profile-name"><a href="/otherProfile?oppUserName=${recommendUser.username}">${recommendUser.nickname}</a></div>
+							<div class="profile-username">${recommendUser.username}</div>
+							<div class="profile-icons">
+								<!-- 하트부분 -->
+								<a id="heart" style="position: absolute; right: 30px; z-index: 2000;" href="/recommendLike?oppUserName=${recommendUser.username}"><i class="fa fa-heart"></i></a>
+								<a href="/recommendDislike?oppUserName=${recommendUser.username}"><i class="fa fa-times"></i></a>
+								
+							</div>
+						</div>
+						<div class="img-space"></div>
+					</div>
+					<div class="col-md-4 dislike-area droppable" style="align-items: center; justify-content: center; display: flex;">
+						
+					</div>
+					<!-- <img src="https://en.js.cx/clipart/soccer-gate.svg" id="gate" class="droppable" style="width: 100%; width: 100px; height: auto;"> -->
+				</div>
+			</div>
+			<!-- 추천 카드 끝 -->
+		</c:if>
 
 		
 		
@@ -197,7 +200,7 @@
 	<script src="js/main.js"></script>
 
 	<script>
-	
+	/* 
 	$(document).ready(function(){
 	});
 	
@@ -383,7 +386,7 @@
 
     ball.ondragstart = function () {
         return false;
-    };
+    }; */
 	
 	</script>
 

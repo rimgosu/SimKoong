@@ -1,10 +1,12 @@
 package com.example.tools;
 
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class TimeCalculator {
 
@@ -37,5 +39,14 @@ public class TimeCalculator {
 			}
 		}
 	}
+	
+	public String formatTimeKST(Instant abs_time) {
+        // KST 시간대로 변환
+        ZonedDateTime kstTime = abs_time.atZone(ZoneId.of("Asia/Seoul"));
+
+        // 원하는 형식으로 포맷 (예: 오후 7:30)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("a h:mm");
+        return kstTime.format(formatter);
+    }
 
 }
