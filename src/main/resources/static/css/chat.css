@@ -47,3 +47,7 @@ ul::-webkit-scrollbar {
 .html {
 	background-color : #fff;
 }
+
+p.fw-bold {
+	color : #ff8cb9;
+}

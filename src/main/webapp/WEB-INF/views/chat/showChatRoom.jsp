@@ -147,7 +147,7 @@ $(document).ready(function() {
         roomUuid = '${chatRoomUuid}';
         getChatting(roomUuid);
     }
-
+    
     // AJAX 호출을 수행하는 별도의 함수
     function getChatting(roomUuid) {
         $.ajax({
@@ -196,7 +196,7 @@ $(document).ready(function() {
 						    <form class="form-inline">       
 						        <li class="bg-white mb-3" style="border-radius: 15px;">
 						            <div class="form-outline" style="width: 100%; position: relative; overflow: hidden;">
-						                <textarea placeholder="Message.." class="form-control" id="chat_content" rows="1" style="border-radius:12px; resize: none; line-height: 45px; height:60px; border-color: #999999; max-height: 200px; overflow: hidden;"></textarea>
+						                <textarea placeholder="Message.." class="form-control" id="chat_content" rows="1" style="border-radius:12px; resize: none; line-height: 45px; border-color: #999999; max-height: 200px; overflow: hidden; line-height: 1.4; padding-top: 20px; padding-bottom: 20px;"></textarea>
 						                <button type="submit" id="send" class="btn btn-info btn-rounded float-end" style="border-radius:7px; position: absolute; right: 10px; bottom: 10px; z-index: 100; background-color:#FFFFFF; border-color:#999999; width: 40px; height: 40px; padding-left: 10px;">
 						                    <i style="color:#767676;" class="far fa-paper-plane"></i>
 						                </button>
@@ -246,6 +246,8 @@ $(document).ready(function() {
 host_address = '${hostAddress}'
 var username = '@Session["username"]';
 
+
+
 const stompClient = new StompJs.Client({
     brokerURL: `ws://\${host_address}:8081/gs-guide-websocket`
 });
@@ -258,6 +260,9 @@ stompClient.onConnect = (frame) => {
         // 필요한 데이터를 추출하여 사용
         // 예: chat.chat_uuid, chat.chat_content 등
         showGreeting(chat); // 또는 필요에 따라 다른 데이터를 사용
+    });
+    stompClient.subscribe('/topic/typing', (typingInfo) => {
+        showTypingStatus(JSON.parse(typingInfo.body));
     });
 };
 
@@ -293,10 +298,15 @@ function disconnect() {
 }
 
 function sendName() {
+	
+	const textarea = document.getElementById('chat_content');
+    const text = textarea.value;
+    const formattedText = text.replace(/\n/g, '<br>'); 
+	
     stompClient.publish({
         destination: "/app/hello",
         body: JSON.stringify({
-        	'chat_content': $("#chat_content").val(),
+        	'chat_content': formattedText,
         	'room_uuid' : roomUuid,
         	'chat_chatter' : '${mvo.username}'
         })
@@ -304,6 +314,7 @@ function sendName() {
     
     /// textarea 내용 초기화
     $('#chat_content').val('');
+    
 }
 
 function showGreeting(chat) {
@@ -359,6 +370,36 @@ $(document).on('click', '#send', function() {
     sendName();
 });
 
+
+
+// 타이핑 중이라면 상대방에게 입력중이라고 메시지 보내기
+var isTyping = false;
+
+$(document).on('input', '#chat_content', function() {
+    var currentStatus = $(this).val().length > 0;
+    if (currentStatus !== isTyping) {
+        isTyping = currentStatus;
+        sendTypingStatus(isTyping);
+    }
+});
+
+function sendTypingStatus(typing) {
+    stompClient.publish({
+        destination: "/app/typing",
+        body: JSON.stringify({ username: '${mvo.username}', isTyping: typing })
+    });
+}
+
+function showTypingStatus(typingInfo) {
+    if (typingInfo.isTyping) {
+        // 사용자가 입력 중인 경우 UI에 표시 (예: "사용자가 입력 중입니다" 메시지 추가)
+        console.log('사용자가 입력중입니다.');
+    } else {
+        // 사용자가 입력을 중단한 경우 UI에서 해당 메시지 제거
+    	console.log('사용자가 입력중이 아닙니다.');
+    }
+}
+
 /****************************
 	[웹소켓] 끝
 *****************************/
@@ -390,7 +431,8 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /****************************
-	[textarea 글 쓰고 Enter 누르면]
+	[textarea 글 쓰고 Enter 누르면 글 보내기]
+	[shift+enter 누르면 줄바꿈함] 
 *****************************/
 $(document).on('keydown', '#chat_content', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -398,13 +440,17 @@ $(document).on('keydown', '#chat_content', function(e) {
         sendName();
     } else if (e.key === 'Enter' && e.shiftKey) {
         // Enter만 눌렀을 때 (Shift + Enter는 제외)
-        this.style.height = `\${parseInt(this.style.height, 10) + 24}px`; // 높이를 24px씩 늘림
+    	setTimeout(adjustHeight.bind(this), 0); 
         
     }
 });
 
+function adjustHeight() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+  }
 
-
+$(document).on('input', '#chat_content', adjustHeight); // 입력할 때마다 크기 조절
 
 
 </script>

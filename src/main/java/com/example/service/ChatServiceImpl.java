@@ -70,7 +70,7 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public List<ChattingNotification> getChattingNotifications(UUID room_uuid) {
 		// TODO Auto-generated method stub
-		System.out.println("[ChatServiceImpl][getChattings]");
+		System.out.println("[ChatServiceImpl][getChattingNotifications]");
 
 		Map<String, Object> colval = new HashMap<String, Object>();
 		colval.put("room_uuid", room_uuid);
@@ -78,6 +78,10 @@ public class ChatServiceImpl implements ChatService {
 		DriverConfigLoader loader = dbService.getConnection();
 		List<Chatting> chattings = dbService.findAllByColumnValues(loader, Chatting.class, colval);
 		List<ChattingNotification> chattingNotifications = new ArrayList<ChattingNotification>();
+		
+		// Info 객체를 저장할 맵 (임시 저장소)
+	    Map<String, Info> infoCache = new HashMap<>();
+		
 		for (Chatting chatting : chattings) {
 			// 기본 속성 복사
 		    ChattingNotification chattingNotification = new ChattingNotification();
@@ -98,9 +102,19 @@ public class ChatServiceImpl implements ChatService {
 		     */
 		    
 		    // photo_base64
-		    List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", chatting.getChat_chatter());
-        	Info info = infos.get(0);
-        	
+		    String chatterName = chatting.getChat_chatter();
+	        Info info;
+
+	        if (!infoCache.containsKey(chatterName)) {
+	            // 새로운 chatterName에 대한 Info 조회
+	            List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", chatterName);
+	            info = infos.get(0);
+	            infoCache.put(chatterName, info);
+	        } else {
+	            // 캐시된 Info 사용
+	            info = infoCache.get(chatterName);
+	        }
+
         	if (info.getPhoto_base64() == null) {
         		List<String> photos_base64 = recommendService.getS3Photos(info);
         		chattingNotification.setPhoto_base64(photos_base64.get(0));
@@ -114,9 +128,10 @@ public class ChatServiceImpl implements ChatService {
         	// relative_time
         	Instant abs_time = chatting.getChatted_at();
         	TimeCalculator timeCalculator = new TimeCalculator();
-        	String relative_time = timeCalculator.timeAgo(abs_time);
-        	
-        	chattingNotification.setRelative_time(relative_time);
+        	String formattedTime = timeCalculator.formatTimeKST(abs_time);
+
+        	chattingNotification.setRelative_time(formattedTime);
+
         	
         	chattingNotifications.add(chattingNotification);
 		    
@@ -315,8 +330,9 @@ public class ChatServiceImpl implements ChatService {
     	// relative_time
     	Instant abs_time = chatting.getChatted_at();
     	TimeCalculator timeCalculator = new TimeCalculator();
-    	String relative_time = timeCalculator.timeAgo(abs_time);
-    	chattingNotification.setRelative_time(relative_time);
+    	String formattedTime = timeCalculator.formatTimeKST(abs_time);
+
+    	chattingNotification.setRelative_time(formattedTime);
     	
 	    return chattingNotification;
 	}

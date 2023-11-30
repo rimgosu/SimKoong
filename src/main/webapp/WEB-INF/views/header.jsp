@@ -49,37 +49,21 @@
 				<div class="navbar-nav ms-auto">
 					<a href="recommend" class="nav-item nav-link">RECOMMEND</a>
 					<a href="interaction" class="nav-item nav-link">INTERACTIONS</a>
+					<a href="showChatRoom?chatRoomUuid=" class="nav-item nav-link">CHAT</a>
 					
 					<div class="nav-item dropdown">
 						<a href="#" class="nav-link dropdown-toggle"
-							data-bs-toggle="dropdown">Property</a>
+							data-bs-toggle="dropdown">Profile</a>
 						<div class="dropdown-menu rounded-0 m-0">
-							<a href="photoUpload" class="dropdown-item">내 정보 입력</a> <a
-								href="property-type.html" class="dropdown-item">Property
-								Type</a> <a href="like" class="dropdown-item">LIKE</a>
+							<a href="photoUpload" class="dropdown-item">프로필 사진 수정</a> 
+							<a href="${cpath}/profile" class="dropdown-item">프로필 정보 수정</a>
+							<a href="${cpath}/logout" class="dropdown-item">LOGOUT</a>
+							
 						</div>
 					</div>
 
 				</div>
-				<c:if test="${empty mvo}">
-					<form class="form-inline" action="${cpath}/login" method="post">
-						<a href="login" class="btn btn-primary px-3 d-none d-lg-flex">LOGIN</a>
-					</form>
-				</c:if>
-				<c:if test="${not empty mvo}">
-					<div class="form-group">
-						<label></label>
-					</div>
-					<a href="showChatRoom?chatRoomUuid=" class="nav-item nav-link">CHATROOM</a>
-					<form class="form-iniline" action="${cpath}/profile" method="get">
-						<button type="submit" class="btn btn-prmary px-3 d-none d-lg-flex"
-							style="color: var(--dark); font-weight: 500;">PROFILE</button>
-					</form>
-					<form class="form-inline" action="${cpath}/logout" method="get">
-						<button type="submit" class="btn btn-default"
-							style="color: var(--dark); font-weight: 500;">LOGOUT</button>
-					</form>
-				</c:if>
+				
 			</div>
 		</nav>
 	</div>

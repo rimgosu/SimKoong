@@ -78,7 +78,11 @@ public class RecommendServiceImpl implements RecommendService {
 		Collections.shuffle(filteredUsers);
 		List<Info> recommendUsers = filteredUsers.stream().limit(5).collect(Collectors.toList());
 
-		return recommendUsers.get(0);
+		if (recommendUsers.size() == 0) {
+			return null;
+		} else {
+			return recommendUsers.get(0);
+		}
 	}
 
 	@Override
