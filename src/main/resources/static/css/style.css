@@ -2,17 +2,31 @@
   @import url('https://fonts.googleapis.com/css2?family=Marko+One&display=swap');
 
 .marko {
-	font-family: 'Marko One', serif;
-	color: pink;
+   font-family: "Helvetica Neue", "Apple SD Gothic Neo", sans-serif;
+   color: #ff8cb9;
 }
 
 :root {
-    --primary: #00B98E;
+    --primary: #333333;
     --secondary: #FF6922;
     --light: #EFFDF5;
-    --dark: #0E2E50;
+    --dark: #444444;
 }
 
+.upload-text {
+   font-family: "Helvetica Neue", "Apple SD Gothic Neo", sans-serif;
+    color: #57606f;  
+}
+
+.material-icons{
+   font-size:46px;
+   
+}
+
+.custom-input{
+   width: 100%; 
+   visibility: hidden;
+}
 
 .back-to-top {
     position: fixed;
@@ -61,6 +75,8 @@
 .btn-lg-square {
     width: 48px;
     height: 48px;
+     background-color: pink; 
+    border-color:pink;
 }
 
 .btn-square,

@@ -38,6 +38,7 @@ import com.example.entity.Filter;
 import com.example.entity.Info;
 import com.example.security.CustomUser;
 import com.example.service.DBService;
+import com.example.service.FileService;
 import com.example.service.FilterService;
 import com.example.service.InfoService;
 import com.example.service.RecommendService;
@@ -59,12 +60,8 @@ public class MainController {
 	RecommendService recommendService;
 	@Autowired
 	private FilterService filterService;
-
-	@GetMapping("/fileUploadTest")
-	public String fileUploadTest() {
-		System.out.println("[MainController][/fileUploadTest]");
-		return "fileUploadTest";
-	}
+	@Autowired
+    private FileService fileService;
 
 	@GetMapping("/")
 	public String showMainPage() {
@@ -204,95 +201,15 @@ public class MainController {
 	}
 
 	@PostMapping("/fileUpload")
-	public String fileUpload(@RequestParam("file") MultipartFile file, @RequestParam("photoNum") int photoNum,
-			HttpServletRequest request) {
-		// ... [기존 코드 유지] ...
+    public String fileUpload(@RequestParam("file") MultipartFile file, @RequestParam("photoNum") int photoNum,
+                             HttpServletRequest request) {
 		System.out.println("[MainController][/fileUpload]");
-
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username_session = authentication.getName();
-
-		DriverConfigLoader loader = dbService.getConnection();
-		List<Info> infos = dbService.findAllByColumnValue(loader, Info.class, "username", username_session);
-		Info info = infos.get(0);
-
-		String originalFilename = null;
-		String uploadedFilePath_aws = null;
-		try {
-			// 고정된 로컬 경로 설정
-			EC2Migration ec2Migration = new EC2Migration();
-
-			String localPath = ec2Migration.getFileDirectory();
-			String uploadedFilePath = null;
-
-			// 업로드된 파일 처리
-			if (!file.isEmpty()) {
-				originalFilename = file.getOriginalFilename();
-				// 고정된 로컬 경로와 원본 파일 이름을 조합
-				String localFilePath = localPath + originalFilename;
-				File dest = new File(localFilePath);
-
-				// 파일 저장
-				file.transferTo(dest);
-
-				// 이미지 리사이징
-				BufferedImage originalImage = ImageIO.read(dest);
-				BufferedImage resizedImage = Thumbnails.of(originalImage).size(640, 360) // 원하는 이미지 크기로 리사이징
-						.outputFormat("jpg") // 출력 포맷 설정
-						.asBufferedImage();
-
-				// 리사이징된 이미지를 새 파일로 저장
-				File resizedFile = new File(localFilePath); // 같은 경로에 저장
-				ImageIO.write(resizedImage, "jpg", resizedFile);
-
-				// AWS S3 업로드를 위한 경로 설정
-				uploadedFilePath = localFilePath.replace("\\\\", "/");
-				uploadedFilePath_aws = "s3://simkoong-s3/" + originalFilename;
-
-			}
-
-			// ... [AWS S3 업로드 및 데이터베이스 업데이트 로직] ...
-			// AWS S3 관련 코드
-			File fileForS3 = new File(uploadedFilePath);
-			String bucketName = "simkoong-s3";
-			String fileName = originalFilename;
-
-			System.out.println("[bucketName : ]" + bucketName);
-			System.out.println("[fileName : ]" + fileName);
-			System.out.println("[fileName : ]" + fileForS3);
-
-			s3client.putObject(new PutObjectRequest(bucketName, fileName, fileForS3));
-
-			// listinfo 정보 전체 가져오기
-			Map<String, Object> columnValues = new HashMap<>();
-			columnValues.put("username", username_session);
-
-			List<Info> listInfo = dbService.findAllByColumnValues(loader, Info.class, columnValues);
-
-			// 업데이트할 정보를 Map형식의 photo에 넣기.
-			Map<Integer, String> photo = listInfo.get(0).getPhoto();
-			photo.put(photoNum, uploadedFilePath_aws);
-
-			// 어디를 업데이트할지, 값은 뭔지를 설정하기
-			Map<String, Object> whereUpdate = new HashMap<>();
-			Map<String, Object> updateValue = new HashMap<>();
-
-			List<String> photos_base64 = recommendService.getS3Photos(info);
-
-			whereUpdate.put("username", username_session);
-			updateValue.put("photo", photo);
-			updateValue.put("photo_base64", photos_base64.get(0));
-
-			// 업데이트 진행
-			dbService.updateByColumnValues(loader, Info.class, updateValue, whereUpdate);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// ... [기존 코드 유지] ...
-		return "redirect:/photoUpload";
-	}
-
+        
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        fileService.handleFileUpload(file, photoNum, username);
+        return "redirect:/photoUpload";
+    }
+	
 	@GetMapping("/profile")
 	public String showProfilePage(Model model) {
 		System.out.println("[MainController][/profile]");

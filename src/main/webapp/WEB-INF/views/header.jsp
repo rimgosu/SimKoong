@@ -15,6 +15,31 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<style type="text/css">
+/* 추가한 부분: 전체 폰트에 대한 스타일 */
+        body {
+            font-family: "Helvetica Neue", "Apple SD Gothic Neo", sans-serif;
+        }
+
+        /* 추가한 부분: .marko 클래스에 대한 스타일 */
+        .marko {  /* 원래 크기의 1.2배로 키움 */
+        font-size: 200%;
+            /* 여러분이 원하는 스타일 속성을 추가하세요 */
+        }
+     
+     
+        /* 추가한 부분: 토글 버튼 스타일 */
+       .navbar-toggler {
+           border: none;
+           outline: none;
+       }
+   
+       /* 추가한 부분: 토글 버튼 아이콘 색상 */
+       .navbar-toggler-icon {
+           color: #000; /* 원하는 색상으로 변경하세요 */
+       }
+
+</style>
 </head>
 <body>
 	
@@ -32,14 +57,11 @@
 
 	<!-- Navbar Start -->
 	<div class="container-fluid nav-bar bg-transparent">
-		<nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
+		<nav style="box-shadow: 0 0 30px rgba(0, 0, 0, 0);" class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
 			<a href="recommend"
 				class="navbar-brand d-flex align-items-center text-center">
-				<div class="p-2 me-2">
-					<img class="img-fluid" src="img/logo.png" alt="Icon"
-						style="width: 100%; height: 30px;">
-				</div>
-				<h1 class="m-0 marko">SIM KOONG</h1>
+				
+				<h1 class="m-0 marko">Babe</h1>
 			</a>
 			<button type="button" class="navbar-toggler"
 				data-bs-toggle="collapse" data-bs-target="#navbarCollapse">

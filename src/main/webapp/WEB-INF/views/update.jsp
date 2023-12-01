@@ -49,7 +49,7 @@ color:#69707a;
     border-radius: 50% !important;
 }
 .card {
-    box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+    box-shadow: 0 0.15rem 1.75rem 0 #eddae1;
 }
 .card .card-header {
     font-weight: 500;
@@ -60,8 +60,8 @@ color:#69707a;
 .card-header {
     padding: 1rem 1.35rem;
     margin-bottom: 0;
-    background-color: rgba(33, 40, 50, 0.03);
-    border-bottom: 1px solid rgba(33, 40, 50, 0.125);
+    background-color: #fff5f9;
+    border-bottom: #fff5f9;
 }
 .form-control, .dataTable-input {
     display: block;
@@ -98,6 +98,14 @@ color:#69707a;
     margin-right: 1rem;
 }
 
+.col-md-6 input:focus {
+   outline: none !important; border-color: #d6a8e9; box-shadow: 0 0 10px #eddae1;
+}
+
+.col-md-6 select:focus {
+   outline: none !important; border-color: #d6a8e9; box-shadow: 0 0 10px #eddae1;
+}
+
 input:focus {
     outline: 1px solid #ced4da;
 }
@@ -114,13 +122,13 @@ input:focus {
         <br>
         <br>
          <%-- <form action ="${cpath}/update" method="post"> --%>
-		      <!-- <div class="container">
-		          <div class="row">
-		              <div class="col-12 text-center">
-		                    <h2>Profile</h2>
-		              </div>
-		            </div> -->
-		            <div class="container">
+            <!-- <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                          <h2>Profile</h2>
+                    </div>
+                  </div> -->
+                  <div class="container">
     <div class="main-body">
           <!-- Breadcrumb -->
 <!--           <nav aria-label="breadcrumb" class="main-breadcrumb">
@@ -151,15 +159,15 @@ input:focus {
                 <div class="card-body text-center">
                     <!-- Profile picture image-->
                     <a href="/photoUpload" id="photoLink">
-                    	<img class="img-account-profile mb-2" src="data:image/jpeg;base64,${imageDatas[0]}"  alt="" style="border-radius: 10px;">
-					</a>
+                       <img class="img-account-profile mb-2" src="data:image/jpeg;base64,${imageDatas[0]}"  alt="" style="border-radius: 10px;">
+               </a>
                     <!-- Profile picture help block-->
                     <div class="small font-italic text-muted mb-4"></div>
                     <!-- Profile picture upload button-->
                     
-                    <h5><input class="" id="nickname" name="nickname" type="text" placeholder="Nick" value="${mvo.nickname}" style="text-align: center; border: none; border-radius: 3px;"></h5>
+                    <h5><input class="" id="nickname" name="nickname" type="text" placeholder="Nick" value="${mvo.nickname}" style="text-align: center; border: none; border-radius: 3px; color: #444444;"></h5>
                     <%-- <a href="/location" id="photoLink"> ${mvo.address[0].replace('[','')} </a> --%>
-					<c:if test="${empty mvo_session }">
+               <c:if test="${empty mvo_session }">
                           <a href="/location" id="photoLink">현재 위치 설정</a>
                        </c:if>
                        <c:if test="${not empty mvo_session }">
@@ -168,14 +176,14 @@ input:focus {
                               <a href="/location" id="photoLink">현재 위치 설정</a>
                           </c:if>
                       </c:if>
-				</div>
+            </div>
             </div>
             <br>
             <div class="card mb-4 mb-xl-0" style="height: 234px;">
-            	<div class="card-header text-center">자기 소개</div>
+               <div class="card-header text-center">자기 소개</div>
                 <div class="card-body">
                     <div class="small font-italic text-muted mb-4">
-                    	<textarea rows="7" cols="48" name="aboutme" style="border: none; resize: none; outline: none; width: 100%;" placeholder="내용을 입력하세요" required>${mvo.aboutme}</textarea>
+                       <textarea rows="7" cols="48" name="aboutme" style="border: none; resize: none; outline: none; width: 100%;" placeholder="내용을 입력하세요">${mvo.aboutme}</textarea>
                     </div>
                 </div>
             </div>
@@ -195,10 +203,10 @@ input:focus {
                            <div class="col-md-6">
                                 <label class="small mb-1" for="inputFirstName">성별</label>
                                 <select class="form-control" id="sex" name="sex" style="background-color: white;" required>
-                                	<option value="${mvo.sex}" selected hidden>${mvo.sex}</option>
-									<option value="남성">남성</option>
-									<option value="여성">여성</option>
-								</select>
+                                   <option value="${mvo.sex}" selected hidden>${mvo.sex}</option>
+                           <option value="남성">남성</option>
+                           <option value="여성">여성</option>
+                        </select>
                             </div>
                         </div>
                         <!-- Form Row-->
@@ -216,47 +224,47 @@ input:focus {
                         </div>
                         <!-- Form Group (email address)-->
                         <div class="row gx-3 mb-3">
-                        	<div class="col-md-6">
-                            	<label class="small mb-1" for="inputEmailAddress">MBTI</label>
-                            	<select class="form-control" id="mbti" name="mbti" style="background-color: white;" required>
-                            		<option value="${mvo.mbti}" selected hidden>${mvo.mbti}</option>
-									<optgroup label="E">
-										<option value="ESTP">ESTP</option>
-										<option value="ESFP">ESFP</option>
-										<option value="ESFJ">ESFJ</option>
-										<option value="ESFJ">ESFJ</option>
-										<option value="ENTP">ENTP</option>
-										<option value="ENTJ">ENTJ</option>
-										<option value="ENFP">ENFP</option>
-										<option value="ENFJ">ENFJ</option>
-									</optgroup>
-									<optgroup label="I">
-										<option value="ISFP">ISFP</option>
-										<option value="ISFJ">ISFJ</option>
-										<option value="ISTP">ISTP</option>
-										<option value="ISTJ">ISTJ</option>
-										<option value="INTP">INTP</option>
-										<option value="INTJ">INTJ</option>
-										<option value="INFP">INFP</option>
-										<option value="INFJ">INFJ</option>
-									</optgroup>
-								</select>
-                        	</div>
+                           <div class="col-md-6">
+                               <label class="small mb-1" for="inputEmailAddress">MBTI</label>
+                               <select class="form-control" id="mbti" name="mbti" style="background-color: white;" required>
+                                  <option value="${mvo.mbti}" selected hidden>${mvo.mbti}</option>
+                           <optgroup label="E">
+                              <option value="ESTP">ESTP</option>
+                              <option value="ESFP">ESFP</option>
+                              <option value="ESFJ">ESFJ</option>
+                              <option value="ESFJ">ESFJ</option>
+                              <option value="ENTP">ENTP</option>
+                              <option value="ENTJ">ENTJ</option>
+                              <option value="ENFP">ENFP</option>
+                              <option value="ENFJ">ENFJ</option>
+                           </optgroup>
+                           <optgroup label="I">
+                              <option value="ISFP">ISFP</option>
+                              <option value="ISFJ">ISFJ</option>
+                              <option value="ISTP">ISTP</option>
+                              <option value="ISTJ">ISTJ</option>
+                              <option value="INTP">INTP</option>
+                              <option value="INTJ">INTJ</option>
+                              <option value="INFP">INFP</option>
+                              <option value="INFJ">INFJ</option>
+                           </optgroup>
+                        </select>
+                           </div>
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputPhone">학력</label>
-	                                <select class="form-control" id="school" name="school" style="background-color: white;" required>
-	                                	<option value="${mvo.school}" selected hidden>${mvo.school}</option>
-										<option value="박사">박사</option>
-										<option value="석사">석사</option>
-										<option value="대학교 졸업">대학교 졸업</option>
-										<option value="대학교 재학">대학교 재학</option>
-										<option value="전문대 졸업">전문대 졸업</option>
-										<option value="전문대 재학">전문대 재학</option>
-										<option value="고등학교">고등학교</option>
-										<option value="중학교">중학교</option>
-										<option value="기타">기타</option>
-										<option value="비공개">비공개</option>
-									</select>
+                                   <select class="form-control" id="school" name="school" style="background-color: white;" required>
+                                      <option value="${mvo.school}" selected hidden>${mvo.school}</option>
+                              <option value="박사">박사</option>
+                              <option value="석사">석사</option>
+                              <option value="대학교 졸업">대학교 졸업</option>
+                              <option value="대학교 재학">대학교 재학</option>
+                              <option value="전문대 졸업">전문대 졸업</option>
+                              <option value="전문대 재학">전문대 재학</option>
+                              <option value="고등학교">고등학교</option>
+                              <option value="중학교">중학교</option>
+                              <option value="기타">기타</option>
+                              <option value="비공개">비공개</option>
+                           </select>
                             </div>
                         </div>
                         
@@ -265,41 +273,41 @@ input:focus {
                             <!-- Form Group (phone number)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputPhone">운동</label>
-	                                <select class="form-control" id="sport" name="sport" style="background-color: white;" required>
-	                                	<option value="${mvo.sport}" selected hidden>${mvo.sport}</option>
-										<option value="운동 선호">운동 선호</option>
-										<option value="운동 비선호">운동 비선호</option>
-									</select>
+                                   <select class="form-control" id="sport" name="sport" style="background-color: white;" required>
+                                      <option value="${mvo.sport}" selected hidden>${mvo.sport}</option>
+                              <option value="운동 선호">운동 선호</option>
+                              <option value="운동 비선호">운동 비선호</option>
+                           </select>
                             </div>
                             <!-- Form Group (birthday)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputBirthday">흡연</label>
-                                	<select class="form-control" id="smoking" name="smoking" style="background-color: white;" required>
-                                		<option value="${mvo.smoking}" selected hidden>${mvo.smoking}</option>
-										<option value="예">예</option>
-										<option value="아니오">아니오</option>
-									</select>
+                                   <select class="form-control" id="smoking" name="smoking" style="background-color: white;" required>
+                                      <option value="${mvo.smoking}" selected hidden>${mvo.smoking}</option>
+                              <option value="예">예</option>
+                              <option value="아니오">아니오</option>
+                           </select>
                             </div>
                         </div>
                         <div class="row gx-3 mb-3">
                             <!-- Form Group (phone number)-->
                             <div class="col-md-6">
                                 <label class="small mb-1" for="inputPhone">음주</label>
-                                	<select class="form-control" id="drinking" name="drinking" style="background-color: white;" required>
-                                		<option value="${mvo.drinking}" selected hidden>${mvo.drinking}</option>
-										<option value="예">예</option>
-										<option value="아니오">아니오</option>
-									</select>
+                                   <select class="form-control" id="drinking" name="drinking" style="background-color: white;" required>
+                                      <option value="${mvo.drinking}" selected hidden>${mvo.drinking}</option>
+                              <option value="예">예</option>
+                              <option value="아니오">아니오</option>
+                           </select>
                             </div>
                             <!-- Form Group (birthday)-->
                             <div class="col-md-6">
-                                <label class="small mb-1" for="inputBirthday">Job</label>
+                                <label class="small mb-1" for="inputBirthday">직업</label>
                                 <input class="form-control" id="job" type="text" name="job" value="${mvo.job}" style="" required>
                             </div>
                         </div>
                         <!-- Save changes button-->
-                        <!-- <button class="btn btn-primary" style="float: right; border-color: pink; background-color: pink;" type="button">Save changes</button> -->
-                        <input type="submit" class="btn btn-info" style="float: right; border-color: pink; background-color: pink; color: white;" type="button" value="Save changes">
+                        <!-- <button class="btn btn-primary" style="float: right; border-color: pink; background-color: pink;" type="button">저장</button> -->
+                        <input type="submit" class="btn btn-info" style="float: right; border-color: pink; background-color: pink; color: white;" type="button" value="저장">
                     
                 </div>
             </div>
@@ -351,7 +359,7 @@ input:focus {
               });
             }
           }
-       		
+             
         // JavaScript 코드
        window.onload = function () {
          // 페이지가 로드될 때 실행되는 함수
