@@ -22,7 +22,7 @@ public class CassandraSessionManager {
         }
         return session;
     }
-
+    // com.datastax.oss.driver.api.core.DriverTimeoutException
     public static void closeSession() {
         if (session != null) {
             session.close();

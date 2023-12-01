@@ -48,18 +48,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <!-- 채팅관련 모듈 불러오기 끝 -->
     
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    
     
 </head>
 
 <body>
     <div class="container-xxl bg-white p-0">
         <jsp:include page="../header.jsp"></jsp:include>
+        
+        
         <!-- 채팅방 보여주기 기능  -->
         
-        
 		<section style="background-color: #ffffff;">
+	
+		<c:if test="${empty chatRoomNotifications }">
 		
-		  <div class="container py-5">
+		<div class="container">
+				<div id="randomImage" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+					<img src="img/x/x3.png" style="width: 60%; display: block; ">
+					<p style="color: #ff8cb9; font-size: 70px; margin-top: 20px; font-family: 'Nanum Pen Script';">채팅이 없습니다</p>
+				</div>
+			</div>
+		
+		</c:if>
+		<c:if test="${not empty chatRoomNotifications }">
+		
+		<div class="container py-5">
 		
 		    <div class="row">
 		
@@ -113,6 +128,10 @@
 		    </div>
 		
 		  </div>
+		
+		</c:if>
+		
+		  
 		</section>
 		<!-- 채팅방 보여주기 기능 끝 -->
 
