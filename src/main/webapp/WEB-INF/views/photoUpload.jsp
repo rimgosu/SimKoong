@@ -48,6 +48,10 @@
 <link href="css/style.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
 	rel="stylesheet">
+	
+<link rel="stylesheet" href="css/progress.css">
+<link rel="stylesheet" href="scss/next.scss">
+
 <style>
 body {
 	margin-top: 20px;
@@ -141,18 +145,29 @@ body {
 	<div class="container-xxl bg-white p-0">
 		<jsp:include page="header.jsp"></jsp:include>
 
-		<br> <br> <br> <br>
+		<br> <br> 
 		<!-- 사진 업로드  -->
+		
 
-		<div class="row">
+		<div class="container">
+		
+		<div class="progress-container">
+	        <div class="dot-container" style="padding:0px;">
+	            <ul style="padding-left:0px;">
+	            <a href="/photoUpload"><li class="small-circle active"></li></a>
+	            <a href="/update"><li class="small-circle"></li></a>
+	            </ul>
+	        </div>
+	    </div>
+
+		<!-- <div class="row">
 			<div class="col-12 text-center">
 				<h2 class="upload-text">
 					<i class="material-icons">file_upload</i> 프로필 사진을 등록해주세요
 				</h2>
 			</div>
-		</div>
-
-		<div class="container">
+		</div> -->
+		
 			<div class="main-body">
 				<div class="cards-list">
 					<c:forEach items="${imageDatas}" var="imageData" varStatus="i">
@@ -189,6 +204,7 @@ body {
 					</div>
 				</div>
 			</div>
+			
 		</div>
 
 
