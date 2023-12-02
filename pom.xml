@@ -19,6 +19,13 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		
+		<!-- scss -->
+		<!--<dependency>
+	        <groupId>io.bit3</groupId>
+	        <artifactId>jsass</artifactId>
+	        <version>5.10.3</version>
+	    </dependency>-->
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
