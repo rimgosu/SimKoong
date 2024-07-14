@@ -1,7 +1,5 @@
 ![image](https://github.com/rimgosu/simkoong/assets/120752098/ddf88b71-4315-4f10-9c22-24a13ce39bf5)
 
-# simkoong
-
 ## 1. 개요
 - 선호 이미지 기반 추천 시스템을 바탕으로 한 **소개팅 웹 서비스**입니다.
 - 인공지능사관학교 4기 Spring 특화반, 심쿵 조의 **Spring 프로젝트**입니다.
